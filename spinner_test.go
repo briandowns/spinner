@@ -48,7 +48,10 @@ func TestStop(t *testing.T) {
 func TestRestart(t *testing.T) {
 	s := New(CharSets[4], 1*time.Second)
 	s.Start()
+	time.Sleep(2 * time.Second)
 	s.Restart()
+	time.Sleep(2 * time.Second)
+	s.Stop()
 }
 
 // TestGenerateNumberSequence verifies that a string slice of a spefic size is returned
