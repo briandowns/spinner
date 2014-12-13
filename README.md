@@ -99,7 +99,11 @@ import (
 )
 
 func main() {
+	someSet := []string{"+", "-"}
+	s := spinner.New(someSet, 100*time.Millisecond)
+	s.Start()
 	time.Sleep(4 * time.Second)
+	s.Stop()
 }
 ```
 
@@ -108,5 +112,18 @@ func main() {
 Generate a sequence of numbers
 
 ```Go
+package main
 
+import (
+	"github.com/briandowns/spinner"
+	"time"
+)
+
+func main() {
+	setOfDigits := spinner.GenerateNumberSequence(25)    // Generate a 25 digit string of numbers
+	s := spinner.New(setOfDigits, 100*time.Millisecond)
+	s.Start()
+	time.Sleep(4 * time.Second)
+	s.Stop()
+}
 ```
