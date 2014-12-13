@@ -21,7 +21,7 @@ import (
 	"time"
 )
 
-// Current spinner sets
+// CharSets is a map of slices containing the available character sets
 var CharSets = map[int][]string{
 	1:  []string{"←", "↖", "↑", "↗", "→", "↘", "↓", "↙"},
 	2:  []string{"▁", "▃", "▄", "▅", "▆", "▇", "█", "▇", "▆", "▅", "▄", "▃"},
@@ -47,9 +47,8 @@ var CharSets = map[int][]string{
 	22: []string{"⇐", "⇖", "⇑", "⇗", "⇒", "⇘", "⇓", "⇙"},
 }
 
-var (
-	StopChan = make(chan bool, 1)
-)
+// StopChan is a bool typed channel used to stop the spinner
+var StopChan = make(chan bool, 1)
 
 // Spinner struct to hold the provided options
 type Spinner struct {
@@ -108,6 +107,6 @@ func GenerateNumberSequence(length int) []string {
 //create a new instance of the Spinner
 func (s *Spinner) UpdateDelay(delay time.Duration) { s.Delay = delay }
 
-// UpdateChars will change the previously select character set to
+// UpdateCharSet will change the previously select character set to
 // the provided one
 func (s *Spinner) UpdateCharSet(chars []string) { s.Chars = chars }
