@@ -16,7 +16,6 @@ package spinner
 
 import (
 	"reflect"
-	"runtime"
 	"testing"
 	"time"
 )
