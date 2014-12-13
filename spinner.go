@@ -17,6 +17,7 @@ package spinner
 
 import (
 	"fmt"
+	//"github.com/fatih/color"
 	"strconv"
 	"time"
 )
