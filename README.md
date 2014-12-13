@@ -4,6 +4,8 @@
 
 For more detail about the library and its features, reference your local godoc once installed.
 
+Contributions welcome!
+
 ## Installation
 
 ```bash
