@@ -15,24 +15,34 @@
 package spinner
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 	"time"
 )
 
-// TestNew will verify that the returned instance is of the proper type
+// TestNew verifies that the returned instance is of the proper type
 func TestNew(t *testing.T) {
 	s := New(CharSets[10], 1*time.Second)
-	fmt.Println(reflect.TypeOf(s))
 	if reflect.TypeOf(s).String() != "*spinner.Spinner" {
 		t.Error("New returned incorrect type")
 	}
 }
 
-func TestStart(t *testing.T) {}
-func TestStop(t *testing.T)  {}
+func TestStart(t *testing.T) {
+	s := New(CharSets[15], 1*time.Second)
+	s.Start()
+	time.Sleep(3 * time.Second)
+	s.Stop()
+}
 
+func TestStop(t *testing.T) {
+	s := New(CharSets[3], 1*time.Second)
+	s.Start()
+	time.Sleep(2 * time.Second)
+	s.Stop()
+}
+
+// TestGenerateNumberSequence verifies that a string slice of a spefic size is returned
 func TestGenerateNumberSequence(t *testing.T) {
 	elementCount := 100
 	seq := GenerateNumberSequence(elementCount)
@@ -44,5 +54,26 @@ func TestGenerateNumberSequence(t *testing.T) {
 	}
 }
 
-func TestUpdateDelay(t *testing.T)   {}
-func TestUpdateCharSet(t *testing.T) {}
+// TestUpdateDelay verifies that the delay can be updated
+func TestUpdateDelay(t *testing.T) {
+	s := New(CharSets[8], 1*time.Second)
+	delay1 := s.Delay
+	s.UpdateDelay((3 * time.Second))
+	delay2 := s.Delay
+	if delay1 == delay2 {
+		t.Error("update of delay set failed")
+	}
+}
+
+// TestUpdateCharSet verifies that character sets can be updated
+func TestUpdateCharSet(t *testing.T) {
+	s := New(CharSets[15], 1*time.Second)
+	charSet1 := s.Chars
+	s.UpdateCharSet(CharSets[2])
+	charSet2 := s.Chars
+	for i, _ := range charSet1 {
+		if charSet1[i] == charSet2[i] {
+			t.Error("update of char set failed")
+		}
+	}
+}

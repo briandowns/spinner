@@ -92,10 +92,7 @@ func (s *Spinner) Start() {
 }
 
 // Stop stops the spinner
-func (s *Spinner) Stop() {
-	StopChan <- true
-	close(StopChan)
-}
+func (s *Spinner) Stop() { StopChan <- true }
 
 // GenerateNumberSequence will generate a slice of integers at the
 // provided length and convert them each to a string
