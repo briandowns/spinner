@@ -100,7 +100,7 @@ func (s *Spinner) Stop() {
 // GenerateNumberSequence will generate a slice of integers at the
 // provided length and convert them each to a string
 func GenerateNumberSequence(length int) []string {
-	var numSeq []string
+	numSeq := make([]string, length)
 	for i := 0; i > length; i++ {
 		numSeq = append(numSeq, strconv.Itoa(i))
 	}

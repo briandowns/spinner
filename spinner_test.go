@@ -21,6 +21,7 @@ import (
 	"time"
 )
 
+// TestNew will verify that the returned instance is of the proper type
 func TestNew(t *testing.T) {
 	s := New(CharSets[10], 1*time.Second)
 	fmt.Println(reflect.TypeOf(s))
@@ -29,8 +30,19 @@ func TestNew(t *testing.T) {
 	}
 }
 
-func TestStart(t *testing.T)                  {}
-func TestStop(t *testing.T)                   {}
-func TestGenerateNumberSequence(t *testing.T) {}
-func TestUpdateDelay(t *testing.T)            {}
-func TestUpdateCharSet(t *testing.T)          {}
+func TestStart(t *testing.T) {}
+func TestStop(t *testing.T)  {}
+
+func TestGenerateNumberSequence(t *testing.T) {
+	elementCount := 100
+	seq := GenerateNumberSequence(elementCount)
+	if reflect.TypeOf(seq).String() != "[]string" {
+		t.Error("received incorrect type in return from GenerateNumberSequence")
+	}
+	if len(seq) != elementCount {
+		t.Error("number of elements in slice doesn't match expected count")
+	}
+}
+
+func TestUpdateDelay(t *testing.T)   {}
+func TestUpdateCharSet(t *testing.T) {}
