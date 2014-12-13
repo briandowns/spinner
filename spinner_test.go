@@ -44,6 +44,13 @@ func TestStop(t *testing.T) {
 	s.Stop()
 }
 
+// TestRestart will verify a spinner can be stopped and started again
+func TestRestart(t *testing.T) {
+	s := New(CharSets[4], 1*time.Second)
+	s.Start()
+	s.Restart()
+}
+
 // TestGenerateNumberSequence verifies that a string slice of a spefic size is returned
 func TestGenerateNumberSequence(t *testing.T) {
 	elementCount := 100

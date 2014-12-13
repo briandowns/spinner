@@ -95,6 +95,12 @@ func (s *Spinner) Start() {
 // Stop stops the spinner
 func (s *Spinner) Stop() { StopChan <- true }
 
+// Restart will stop and start the spinner
+func (s *Spinner) Restart() {
+	s.Stop()
+	s.Start()
+}
+
 // GenerateNumberSequence will generate a slice of integers at the
 // provided length and convert them each to a string
 func GenerateNumberSequence(length int) []string {

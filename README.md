@@ -62,7 +62,7 @@ func main() {
 	s.UpdateCharSet(spinner.CharSets[8])                 // Update which spinner is used
 	s.Start()
 
-	s.UpdateDelay(1*time.Second)                         // Update the spinner speed
+	s.UpdateSpeed(1*time.Second)                         // Update the spinner speed
 	s.Start()
 }
 ```
