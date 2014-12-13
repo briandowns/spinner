@@ -105,9 +105,9 @@ func GenerateNumberSequence(length int) []string {
 	return numSeq
 }
 
-// UpdateDelay is a convenience function to not have to make you
+// UpdateSpeed is a convenience function to not have to make you
 //create a new instance of the Spinner
-func (s *Spinner) UpdateDelay(delay time.Duration) { s.Delay = delay }
+func (s *Spinner) UpdateSpeed(delay time.Duration) { s.Delay = delay }
 
 // UpdateCharSet will change the previously select character set to
 // the provided one

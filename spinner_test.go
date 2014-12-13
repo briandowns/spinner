@@ -56,14 +56,14 @@ func TestGenerateNumberSequence(t *testing.T) {
 	}
 }
 
-// TestUpdateDelay verifies that the delay can be updated
-func TestUpdateDelay(t *testing.T) {
+// TestUpdateSpeed verifies that the delay can be updated
+func TestUpdateSpeed(t *testing.T) {
 	s := New(CharSets[8], 1*time.Second)
 	delay1 := s.Delay
-	s.UpdateDelay((3 * time.Second))
+	s.UpdateSpeed(3 * time.Second)
 	delay2 := s.Delay
 	if delay1 == delay2 {
-		t.Error("update of delay set failed")
+		t.Error("update of speed failed")
 	}
 }
 

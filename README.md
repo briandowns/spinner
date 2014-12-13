@@ -58,5 +58,11 @@ func main() {
 	s.Start()                                            // Start the spinner
 	time.Sleep(5 * time.Second)                          // Run for some time to simulate work
 	s.Stop()                                             // Stop the spinner
+
+	s.UpdateCharSet(spinner.CharSets[8])                 // Update which spinner is used
+	s.Start()
+
+	s.UpdateDelay(1*time.Second)                         // Update the spinner speed
+	s.Start()
 }
 ```
