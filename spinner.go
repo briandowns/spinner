@@ -70,15 +70,13 @@ func New(c []string, t time.Duration) *Spinner {
 // Start will start the spinner
 func (s *Spinner) Start() {
 	count := 0
-	charChan := make(chan string, 1)
 	go func() {
 		for {
 			select {
 			case <-StopChan:
-				close(charChan)
 				return
-			case charChan <- fmt.Sprintf("\r%s ", s.Chars[count]):
-				fmt.Printf(<-charChan)
+			default:
+				fmt.Printf("\r%s ", s.Chars[count])
 				time.Sleep(s.Delay)
 				if count != s.Offset {
 					count++
