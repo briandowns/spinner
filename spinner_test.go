@@ -73,7 +73,7 @@ func TestUpdateCharSet(t *testing.T) {
 	charSet1 := s.Chars
 	s.UpdateCharSet(CharSets[2])
 	charSet2 := s.Chars
-	for i, _ := range charSet1 {
+	for i := range charSet1 {
 		if charSet1[i] == charSet2[i] {
 			t.Error("update of char set failed")
 		}

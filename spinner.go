@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// spinner is a simple library to add a spinner to your application.
+// Package spinner is a simple library to add a spinner to your application.
 package spinner
 
 import (
