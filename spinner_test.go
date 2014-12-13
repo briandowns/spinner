@@ -16,6 +16,7 @@ package spinner
 
 import (
 	"reflect"
+	"runtime"
 	"testing"
 	"time"
 )
@@ -28,6 +29,7 @@ func TestNew(t *testing.T) {
 	}
 }
 
+// TestStart will verify a spinner can be started
 func TestStart(t *testing.T) {
 	s := New(CharSets[15], 1*time.Second)
 	s.Start()
@@ -35,6 +37,7 @@ func TestStart(t *testing.T) {
 	s.Stop()
 }
 
+// TestStop will verify a spinner can be stopped
 func TestStop(t *testing.T) {
 	s := New(CharSets[3], 1*time.Second)
 	s.Start()
