@@ -14,6 +14,10 @@
 
 package spinner
 
+import (
+	"testing"
+)
+
 func TestNew(t *testing.T)                    {}
 func TestStart(t *testing.T)                  {}
 func TestStop(t *testing.T)                   {}
