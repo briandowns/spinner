@@ -15,10 +15,20 @@
 package spinner
 
 import (
+	"fmt"
+	"reflect"
 	"testing"
+	"time"
 )
 
-func TestNew(t *testing.T)                    {}
+func TestNew(t *testing.T) {
+	s := New(CharSets[10], 1*time.Second)
+	fmt.Println(reflect.TypeOf(s))
+	if reflect.TypeOf(s).String() != "*spinner.Spinner" {
+		t.Error("New returned incorrect type")
+	}
+}
+
 func TestStart(t *testing.T)                  {}
 func TestStop(t *testing.T)                   {}
 func TestGenerateNumberSequence(t *testing.T) {}
