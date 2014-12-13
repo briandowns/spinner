@@ -102,6 +102,14 @@ func (s *Spinner) Restart() {
 	s.Start()
 }
 
+// UpdateSpeed is a convenience function to not have to make you
+//create a new instance of the Spinner
+func (s *Spinner) UpdateSpeed(delay time.Duration) { s.Delay = delay }
+
+// UpdateCharSet will change the previously select character set to
+// the provided one
+func (s *Spinner) UpdateCharSet(chars []string) { s.Chars = chars }
+
 // GenerateNumberSequence will generate a slice of integers at the
 // provided length and convert them each to a string
 func GenerateNumberSequence(length int) []string {
@@ -111,11 +119,3 @@ func GenerateNumberSequence(length int) []string {
 	}
 	return numSeq
 }
-
-// UpdateSpeed is a convenience function to not have to make you
-//create a new instance of the Spinner
-func (s *Spinner) UpdateSpeed(delay time.Duration) { s.Delay = delay }
-
-// UpdateCharSet will change the previously select character set to
-// the provided one
-func (s *Spinner) UpdateCharSet(chars []string) { s.Chars = chars }

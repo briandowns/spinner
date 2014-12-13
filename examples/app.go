@@ -17,7 +17,7 @@ func main() {
 	s.Restart()
 	time.Sleep(4 * time.Second)
 
-	s.UpdateCharSet(spinner.CharSets[2])
+	s.UpdateCharSet(spinner.CharSets[6])
 	s.UpdateSpeed(300 * time.Millisecond)
 	s.Restart()
 	time.Sleep(4 * time.Second)
@@ -27,12 +27,12 @@ func main() {
 	s.Restart()
 	time.Sleep(4 * time.Second)
 
-	s.UpdateCharSet(spinner.CharSets[4])
+	s.UpdateCharSet(spinner.CharSets[8])
 	s.UpdateSpeed(200 * time.Millisecond)
 	s.Restart()
 	time.Sleep(4 * time.Second)
 
-	s.UpdateCharSet(spinner.CharSets[5])
+	s.UpdateCharSet(spinner.CharSets[26])
 	s.UpdateSpeed(100 * time.Millisecond)
 	s.Restart()
 	time.Sleep(4 * time.Second)

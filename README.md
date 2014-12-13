@@ -41,7 +41,7 @@ go get -u github.com/briandowns/spinner
 * ⠁⠉⠙⠚⠒⠂⠂⠒⠲⠴⠤⠄⠄⠤⠴⠲⠒⠂⠂⠒⠚⠙⠉⠁
 * ⠋⠙⠚⠒⠂⠂⠒⠲⠴⠦⠖⠒⠐⠐⠒⠓⠋
 
-## Example
+## Example 1
 
 The code below can also be found in the examples directory
 
@@ -58,12 +58,12 @@ func main() {
 	s.Start()                                                    // Start the spinner
 	time.Sleep(4 * time.Second)                                  // Run for some time to simulate work
 
-	s.UpdateCharSet(spinner.CharSets[1])                         // Change character set
-	s.UpdateSpeed(200 * time.Millisecond)                        // Change speed of spinner
-	s.Restart()                                                  // Restart the spinner
+	s.UpdateCharSet(spinner.CharSets[1])
+	s.UpdateSpeed(200 * time.Millisecond)
+	s.Restart()
 	time.Sleep(4 * time.Second)
 
-	s.UpdateCharSet(spinner.CharSets[2])
+	s.UpdateCharSet(spinner.CharSets[6])
 	s.UpdateSpeed(300 * time.Millisecond)
 	s.Restart()
 	time.Sleep(4 * time.Second)
@@ -73,15 +73,40 @@ func main() {
 	s.Restart()
 	time.Sleep(4 * time.Second)
 
-	s.UpdateCharSet(spinner.CharSets[4])
+	s.UpdateCharSet(spinner.CharSets[8])
 	s.UpdateSpeed(200 * time.Millisecond)
 	s.Restart()
 	time.Sleep(4 * time.Second)
 
-	s.UpdateCharSet(spinner.CharSets[5])
+	s.UpdateCharSet(spinner.CharSets[26])
 	s.UpdateSpeed(100 * time.Millisecond)
 	s.Restart()
 	time.Sleep(4 * time.Second)
 	s.Stop()
 }
+```
+
+## Example 2
+
+Provide your own spinner or send me an issue or pull request to add to the project.
+
+```Go
+package main
+
+import (
+	"github.com/briandowns/spinner"
+	"time"
+)
+
+func main() {
+	time.Sleep(4 * time.Second)
+}
+```
+
+# Example 3
+
+Generate a sequence of numbers
+
+```Go
+
 ```
