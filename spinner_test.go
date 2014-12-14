@@ -54,18 +54,6 @@ func TestRestart(t *testing.T) {
 	s.Stop()
 }
 
-// TestGenerateNumberSequence verifies that a string slice of a spefic size is returned
-func TestGenerateNumberSequence(t *testing.T) {
-	elementCount := 100
-	seq := GenerateNumberSequence(elementCount)
-	if reflect.TypeOf(seq).String() != "[]string" {
-		t.Error("received incorrect type in return from GenerateNumberSequence")
-	}
-	if len(seq) != elementCount {
-		t.Error("number of elements in slice doesn't match expected count")
-	}
-}
-
 // TestUpdateSpeed verifies that the delay can be updated
 func TestUpdateSpeed(t *testing.T) {
 	s := New(CharSets[8], 1*time.Second)
@@ -87,5 +75,17 @@ func TestUpdateCharSet(t *testing.T) {
 		if charSet1[i] == charSet2[i] {
 			t.Error("update of char set failed")
 		}
+	}
+}
+
+// TestGenerateNumberSequence verifies that a string slice of a spefic size is returned
+func TestGenerateNumberSequence(t *testing.T) {
+	elementCount := 100
+	seq := GenerateNumberSequence(elementCount)
+	if reflect.TypeOf(seq).String() != "[]string" {
+		t.Error("received incorrect type in return from GenerateNumberSequence")
+	}
+	if len(seq) != elementCount {
+		t.Error("number of elements in slice doesn't match expected count")
 	}
 }
