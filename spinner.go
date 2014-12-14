@@ -113,8 +113,8 @@ func (s *Spinner) UpdateCharSet(chars []string) { s.Chars = chars }
 // GenerateNumberSequence will generate a slice of integers at the
 // provided length and convert them each to a string
 func GenerateNumberSequence(length int) []string {
-	numSeq := make([]string, length)
-	for i := 0; i > length; i++ {
+	numSeq := make([]string, 0)
+	for i := 0; i < length; i++ {
 		numSeq = append(numSeq, strconv.Itoa(i))
 	}
 	return numSeq
