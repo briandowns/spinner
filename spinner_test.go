@@ -30,17 +30,17 @@ func TestNew(t *testing.T) {
 
 // TestStart will verify a spinner can be started
 func TestStart(t *testing.T) {
-	s := New(CharSets[15], 1*time.Second)
+	s := New(CharSets[8], 500*time.Millisecond)
 	s.Start()
-	time.Sleep(3 * time.Second)
+	time.Sleep(6 * time.Second)
 	s.Stop()
 }
 
 // TestStop will verify a spinner can be stopped
 func TestStop(t *testing.T) {
-	s := New(CharSets[3], 1*time.Second)
+	s := New(CharSets[14], 500*time.Millisecond)
 	s.Start()
-	time.Sleep(2 * time.Second)
+	time.Sleep(6 * time.Second)
 	s.Stop()
 }
 
@@ -56,7 +56,7 @@ func TestRestart(t *testing.T) {
 
 // TestUpdateSpeed verifies that the delay can be updated
 func TestUpdateSpeed(t *testing.T) {
-	s := New(CharSets[8], 1*time.Second)
+	s := New(CharSets[10], 1*time.Second)
 	delay1 := s.Delay
 	s.UpdateSpeed(3 * time.Second)
 	delay2 := s.Delay
