@@ -12,9 +12,9 @@ func main() {
 	s.Start()                                                    // Start the spinner
 	time.Sleep(4 * time.Second)                                  // Run for some time to simulate work
 
-	s.UpdateCharSet(spinner.CharSets[1])
-	s.UpdateSpeed(200 * time.Millisecond)
-	s.Restart()
+	s.UpdateCharSet(spinner.CharSets[1])  // Update spinner to use a different character set
+	s.UpdateSpeed(200 * time.Millisecond) // Update the speed the spinner spins at
+	s.Restart()                           // Restart the spinner
 	time.Sleep(4 * time.Second)
 
 	s.UpdateCharSet(spinner.CharSets[6])
@@ -36,5 +36,5 @@ func main() {
 	s.UpdateSpeed(100 * time.Millisecond)
 	s.Restart()
 	time.Sleep(4 * time.Second)
-	s.Stop()
+	s.Stop() // Stop the spinner
 }
