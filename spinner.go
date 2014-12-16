@@ -55,9 +55,6 @@ var CharSets = map[int][]string{
 var (
 	// StopChan is a bool typed channel used to stop the spinner
 	StopChan = make(chan bool, 1)
-
-	// DirectionChan is a bool typed channel used to reverse the spinner
-	DirectionChan = make(chan bool, 1)
 )
 
 // Spinner struct to hold the provided options
@@ -69,7 +66,7 @@ type Spinner struct {
 }
 
 // New provides a pointer to an instance of Spinner with the supplied options
-func New(c []string, t time.Duration, d string) *Spinner {
+func New(c []string, t time.Duration) *Spinner {
 	return &Spinner{
 		Chars:  c,
 		Delay:  t,
