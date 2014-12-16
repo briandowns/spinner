@@ -52,8 +52,13 @@ var CharSets = map[int][]string{
 	26: []string{"⠋", "⠙", "⠚", "⠒", "⠂", "⠂", "⠒", "⠲", "⠴", "⠦", "⠖", "⠒", "⠐", "⠐", "⠒", "⠓", "⠋"},
 }
 
-// StopChan is a bool typed channel used to stop the spinner
-var StopChan = make(chan bool, 1)
+var (
+	// StopChan is a bool typed channel used to stop the spinner
+	StopChan = make(chan bool, 1)
+
+	// DirectionChan is a bool typed channel used to reverse the spinner
+	DirectionChan = make(chan bool, 1)
+)
 
 // Spinner struct to hold the provided options
 type Spinner struct {
@@ -101,9 +106,6 @@ func (s *Spinner) Restart() {
 	s.Stop()
 	s.Start()
 }
-
-// Reverse will
-func (s *Spinner) Reverse() {}
 
 // UpdateSpeed is a convenience function to not have to make you
 //create a new instance of the Spinner
