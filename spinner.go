@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package spinner is a simple library to add a spinner to your application.
+// Package spinner is a simple pacakge to add a spinner to your application.
 package spinner
 
 import (
@@ -64,7 +64,7 @@ type Spinner struct {
 }
 
 // New provides a pointer to an instance of Spinner with the supplied options
-func New(c []string, t time.Duration) *Spinner {
+func New(c []string, t time.Duration, d string) *Spinner {
 	return &Spinner{
 		Chars:  c,
 		Delay:  t,
@@ -101,6 +101,9 @@ func (s *Spinner) Restart() {
 	s.Stop()
 	s.Start()
 }
+
+// Reverse will
+func (s *Spinner) Reverse() {}
 
 // UpdateSpeed is a convenience function to not have to make you
 //create a new instance of the Spinner
