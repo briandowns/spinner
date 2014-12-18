@@ -17,6 +17,7 @@ package spinner
 
 import (
 	"fmt"
+	"sort"
 	"strconv"
 	"time"
 )
@@ -54,21 +55,25 @@ var CharSets = map[int][]string{
 var (
 	// StopChan is a bool typed channel used to stop the spinner
 	StopChan = make(chan bool, 1)
+	// DirectionChan is a bool typed channel use to change the direction of a spinner
+	DirectionChan = make(chan bool, 1)
 )
 
 // Spinner struct to hold the provided options
 type Spinner struct {
-	Chars  []string
-	Delay  time.Duration
-	Offset int
+	Chars     []string
+	Delay     time.Duration
+	Offset    int
+	Direction string
 }
 
 // New provides a pointer to an instance of Spinner with the supplied options
 func New(c []string, t time.Duration) *Spinner {
 	return &Spinner{
-		Chars:  c,
-		Delay:  t,
-		Offset: len(c) - 1,
+		Chars:     c,
+		Delay:     t,
+		Offset:    len(c) - 1,
+		Direction: "right",
 	}
 }
 
@@ -80,6 +85,8 @@ func (s *Spinner) Start() {
 			select {
 			case <-StopChan:
 				return
+			case <-DirectionChan:
+				s.Reverse()
 			default:
 				fmt.Printf("\r%s ", s.Chars[count])
 				time.Sleep(s.Delay)
@@ -100,6 +107,17 @@ func (s *Spinner) Stop() { StopChan <- true }
 func (s *Spinner) Restart() {
 	s.Stop()
 	s.Start()
+}
+
+// Reverse will reverse the order of the slice assigned to that spinner
+func (s *Spinner) Reverse() {
+	sort.Sort(sort.Reverse(sort.StringSlice(s.Chars)))
+	if s.Direction == "left" {
+		s.Direction = "right"
+	} else {
+		s.Direction = "left"
+	}
+	s.Restart()
 }
 
 // UpdateSpeed is a convenience function to not have to make you
