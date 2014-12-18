@@ -62,7 +62,6 @@ type Spinner struct {
 	Chars  []string
 	Delay  time.Duration
 	Offset int
-	Fmt    string
 }
 
 // New provides a pointer to an instance of Spinner with the supplied options
