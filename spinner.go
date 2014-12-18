@@ -107,13 +107,14 @@ func (s *Spinner) Restart() {
 
 // Reverse will reverse the order of the slice assigned to that spinner
 func (s *Spinner) Reverse() {
+	s.Stop()
 	sort.Sort(sort.Reverse(sort.StringSlice(s.Chars)))
 	if s.Direction == "left" {
 		s.Direction = "right"
 	} else {
 		s.Direction = "left"
 	}
-	s.Restart()
+	s.Start()
 }
 
 // UpdateSpeed is a convenience function to not have to make you

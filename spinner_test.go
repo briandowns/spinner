@@ -15,6 +15,7 @@
 package spinner
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 	"time"
@@ -22,7 +23,7 @@ import (
 
 // TestNew verifies that the returned instance is of the proper type
 func TestNew(t *testing.T) {
-	s := New(CharSets[10], 1*time.Second)
+	s := New(CharSets[1], 1*time.Second)
 	if reflect.TypeOf(s).String() != "*spinner.Spinner" {
 		t.Error("New returned incorrect type")
 	}
@@ -30,8 +31,10 @@ func TestNew(t *testing.T) {
 
 // TestStart will verify a spinner can be started
 func TestStart(t *testing.T) {
-	s := New(CharSets[8], 500*time.Millisecond)
+	s := New(CharSets[10], 500*time.Millisecond)
+	fmt.Println(s.Chars)
 	s.Start()
+	fmt.Println(s.Chars)
 	time.Sleep(6 * time.Second)
 	s.Stop()
 	s = nil
@@ -54,7 +57,6 @@ func TestRestart(t *testing.T) {
 	s.Restart()
 	time.Sleep(2 * time.Second)
 	s.Stop()
-	s = nil
 }
 
 // TestReverse will verify that the given spinner can stop and start again reversed
@@ -65,7 +67,6 @@ func TestReverse(t *testing.T) {
 	s.Reverse()
 	time.Sleep(2 * time.Second)
 	s.Stop()
-	s = nil
 }
 
 // TestUpdateSpeed verifies that the delay can be updated
