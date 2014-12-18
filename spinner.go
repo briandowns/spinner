@@ -55,8 +55,6 @@ var CharSets = map[int][]string{
 var (
 	// StopChan is a bool typed channel used to stop the spinner
 	StopChan = make(chan bool, 1)
-	// DirectionChan is a bool typed channel use to change the direction of a spinner
-	DirectionChan = make(chan bool, 1)
 )
 
 // Spinner struct to hold the provided options
@@ -85,8 +83,6 @@ func (s *Spinner) Start() {
 			select {
 			case <-StopChan:
 				return
-			case <-DirectionChan:
-				s.Reverse()
 			default:
 				fmt.Printf("\r%s ", s.Chars[count])
 				time.Sleep(s.Delay)

@@ -34,6 +34,7 @@ func TestStart(t *testing.T) {
 	s.Start()
 	time.Sleep(6 * time.Second)
 	s.Stop()
+	s = nil
 }
 
 // TestStop will verify a spinner can be stopped
@@ -42,6 +43,7 @@ func TestStop(t *testing.T) {
 	p.Start()
 	time.Sleep(6 * time.Second)
 	p.Stop()
+	p = nil
 }
 
 // TestRestart will verify a spinner can be stopped and started again
@@ -52,6 +54,18 @@ func TestRestart(t *testing.T) {
 	s.Restart()
 	time.Sleep(2 * time.Second)
 	s.Stop()
+	s = nil
+}
+
+// TestReverse will verify that the given spinner can stop and start again reversed
+func TestReverse(t *testing.T) {
+	s := New(CharSets[1], 100*time.Millisecond)
+	s.Start()
+	time.Sleep(2 * time.Second)
+	s.Reverse()
+	time.Sleep(2 * time.Second)
+	s.Stop()
+	s = nil
 }
 
 // TestUpdateSpeed verifies that the delay can be updated
@@ -63,6 +77,7 @@ func TestUpdateSpeed(t *testing.T) {
 	if delay1 == delay2 {
 		t.Error("update of speed failed")
 	}
+	s = nil
 }
 
 // TestUpdateCharSet verifies that character sets can be updated
@@ -76,6 +91,7 @@ func TestUpdateCharSet(t *testing.T) {
 			t.Error("update of char set failed")
 		}
 	}
+	s = nil
 }
 
 // TestGenerateNumberSequence verifies that a string slice of a spefic size is returned
