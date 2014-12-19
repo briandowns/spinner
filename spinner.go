@@ -17,7 +17,6 @@ package spinner
 
 import (
 	"fmt"
-	"sort"
 	"strconv"
 	"time"
 )
@@ -60,6 +59,7 @@ var (
 // Spinner struct to hold the provided options
 type Spinner struct {
 	Chars     []string
+	OrigChars []string
 	Delay     time.Duration
 	Offset    int
 	Direction string
@@ -107,14 +107,19 @@ func (s *Spinner) Restart() {
 
 // Reverse will reverse the order of the slice assigned to that spinner
 func (s *Spinner) Reverse() {
-	s.Stop()
-	sort.Sort(sort.Reverse(sort.StringSlice(s.Chars)))
-	if s.Direction == "left" {
-		s.Direction = "right"
-	} else {
+	var revChars []string
+	s.OrigChars = s.Chars
+	fmt.Println(s.Direction)
+	if s.Direction == "right" {
+		for i := s.Offset; i >= 0; i-- {
+			revChars = append(revChars, s.Chars[i])
+		}
+		s.Chars = revChars
 		s.Direction = "left"
+	} else {
+		s.Chars = s.OrigChars
+		s.Direction = "right"
 	}
-	s.Start()
 }
 
 // UpdateSpeed is a convenience function to not have to make you
