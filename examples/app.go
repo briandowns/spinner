@@ -17,7 +17,7 @@ func main() {
 	s.Restart()                           // Restart the spinner
 	time.Sleep(4 * time.Second)
 
-	s.Reverse()
+	s.Reverse() // Reverse the direction the spinner is spinning
 	s.Restart()
 	time.Sleep(4 * time.Second)
 	s.Stop() // Stop the spinner

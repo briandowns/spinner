@@ -43,6 +43,15 @@ go get github.com/briandowns/spinner
 * ⠁⠉⠙⠚⠒⠂⠂⠒⠲⠴⠤⠄⠄⠤⠴⠲⠒⠂⠂⠒⠚⠙⠉⠁
 * ⠋⠙⠚⠒⠂⠂⠒⠲⠴⠦⠖⠒⠐⠐⠒⠓⠋
 
+## Features
+
+* Start
+* Stop
+* Restart
+* Reverse direction
+* Update the spinner character set
+* Update the spinner speed
+
 ## Examples
 
 ```Go
@@ -77,6 +86,14 @@ func main() {
 	s.Restart()
 	time.Sleep(4 * time.Second)
 	s.Stop()
+```
+
+```Go
+    s.Reverse() // Reverse the direction the spinner is spinning
+    s.Restart()
+    time.Sleep(4 * time.Second)
+    s.Stop()
+}
 ```
 
 ## Provide your own spinner
