@@ -88,6 +88,8 @@ func main() {
 	s.Stop()
 ```
 
+## Reverse the direction of the spinner
+
 ```Go
     s.Reverse() // Reverse the direction the spinner is spinning
     s.Restart()
