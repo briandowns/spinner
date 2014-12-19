@@ -61,9 +61,7 @@ func TestRestart(t *testing.T) {
 // TestReverse will verify that the given spinner can stop and start again reversed
 func TestReverse(t *testing.T) {
 	s := New(CharSets[10], 1*time.Second)
-	fmt.Println(s.Chars)
 	s.Reverse()
-	fmt.Println(s.Chars)
 	s.Start()
 	time.Sleep(6 * time.Second)
 	s.Stop()

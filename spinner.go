@@ -109,13 +109,14 @@ func (s *Spinner) Restart() {
 func (s *Spinner) Reverse() {
 	var revChars []string
 	s.OrigChars = s.Chars
-	if s.Direction == "right" {
+	switch {
+	case s.Direction == "right":
 		for i := s.Offset; i >= 0; i-- {
 			revChars = append(revChars, s.Chars[i])
 		}
 		s.Chars = revChars
 		s.Direction = "left"
-	} else {
+	case s.Direction == "left":
 		s.Chars = s.OrigChars
 		s.Direction = "right"
 	}
