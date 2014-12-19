@@ -62,9 +62,11 @@ func TestReverse(t *testing.T) {
 	a := New(CharSets[10], 1*time.Second)
 	a.Start()
 	time.Sleep(6 * time.Second)
-	a.Stop()
 	a.Reverse()
-	a.Start()
+	a.Restart()
+	time.Sleep(6 * time.Second)
+	a.Reverse()
+	a.Restart()
 	time.Sleep(6 * time.Second)
 	a.Stop()
 	a = nil
