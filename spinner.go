@@ -63,6 +63,8 @@ type Spinner struct {
 	Delay     time.Duration
 	Offset    int
 	Direction string
+	Prefix,
+	Suffix string
 }
 
 // New provides a pointer to an instance of Spinner with the supplied options
@@ -84,7 +86,7 @@ func (s *Spinner) Start() {
 			case <-StopChan:
 				return
 			default:
-				fmt.Printf("\r%s ", s.Chars[count])
+				fmt.Printf("\r%s%s%s ", s.Prefix, s.Chars[count], s.Suffix)
 				time.Sleep(s.Delay)
 				if count != s.Offset {
 					count++
