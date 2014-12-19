@@ -15,7 +15,6 @@
 package spinner
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 	"time"
@@ -60,12 +59,15 @@ func TestRestart(t *testing.T) {
 
 // TestReverse will verify that the given spinner can stop and start again reversed
 func TestReverse(t *testing.T) {
-	s := New(CharSets[10], 1*time.Second)
-	s.Reverse()
-	s.Start()
+	a := New(CharSets[10], 1*time.Second)
+	a.Start()
 	time.Sleep(6 * time.Second)
-	s.Stop()
-	s = nil
+	a.Stop()
+	a.Reverse()
+	a.Start()
+	time.Sleep(6 * time.Second)
+	a.Stop()
+	a = nil
 }
 
 // TestUpdateSpeed verifies that the delay can be updated
