@@ -109,7 +109,6 @@ func (s *Spinner) Restart() {
 func (s *Spinner) Reverse() {
 	var revChars []string
 	s.OrigChars = s.Chars
-	fmt.Println(s.Direction)
 	if s.Direction == "right" {
 		for i := s.Offset; i >= 0; i-- {
 			revChars = append(revChars, s.Chars[i])

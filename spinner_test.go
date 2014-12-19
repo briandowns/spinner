@@ -55,6 +55,7 @@ func TestRestart(t *testing.T) {
 	s.Restart()
 	time.Sleep(2 * time.Second)
 	s.Stop()
+	s = nil
 }
 
 // TestReverse will verify that the given spinner can stop and start again reversed
@@ -66,6 +67,7 @@ func TestReverse(t *testing.T) {
 	s.Start()
 	time.Sleep(6 * time.Second)
 	s.Stop()
+	s = nil
 }
 
 // TestUpdateSpeed verifies that the delay can be updated
