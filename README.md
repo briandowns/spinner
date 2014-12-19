@@ -95,7 +95,6 @@ func main() {
     s.Restart()
     time.Sleep(4 * time.Second)
     s.Stop()
-}
 ```
 
 ## Provide your own spinner
