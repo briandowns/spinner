@@ -87,9 +87,9 @@ func TestUpdateSpeed(t *testing.T) {
 // TestUpdateCharSet verifies that character sets can be updated
 func TestUpdateCharSet(t *testing.T) {
 	s := New(CharSets[14], 1*time.Second)
-	charSet1 := s.Chars
+	charSet1 := s.chars
 	s.UpdateCharSet(CharSets[1])
-	charSet2 := s.Chars
+	charSet2 := s.chars
 	for i := range charSet1 {
 		if charSet1[i] == charSet2[i] {
 			t.Error("update of char set failed")
