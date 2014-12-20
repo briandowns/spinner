@@ -61,7 +61,6 @@ type Spinner struct {
 	Chars     []string
 	OrigChars []string
 	Delay     time.Duration
-	Offset    int
 	Direction string
 	Prefix,
 	Suffix string
@@ -72,26 +71,21 @@ func New(c []string, t time.Duration) *Spinner {
 	return &Spinner{
 		Chars:     c,
 		Delay:     t,
-		Offset:    len(c) - 1,
 		Direction: "right",
 	}
 }
 
 // Start will start the spinner
 func (s *Spinner) Start() {
-	count := 0
 	go func() {
 		for {
-			select {
-			case <-StopChan:
-				return
-			default:
-				fmt.Printf("\r%s%s%s ", s.Prefix, s.Chars[count], s.Suffix)
-				time.Sleep(s.Delay)
-				if count != s.Offset {
-					count++
-				} else {
-					count = 0
+			for i := 0; i < len(s.Chars); i++ {
+				select {
+				case <-StopChan:
+					return
+				default:
+					fmt.Printf("\r%s%s%s ", s.Prefix, s.Chars[i], s.Suffix)
+					time.Sleep(s.Delay)
 				}
 			}
 		}
@@ -113,7 +107,7 @@ func (s *Spinner) Reverse() {
 	s.OrigChars = s.Chars
 	switch {
 	case s.Direction == "right":
-		for i := s.Offset; i >= 0; i-- {
+		for i := len(s.Chars) - 1; i >= 0; i-- {
 			revChars = append(revChars, s.Chars[i])
 		}
 		s.Chars = revChars
