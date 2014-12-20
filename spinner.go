@@ -21,7 +21,7 @@ import (
 	"time"
 )
 
-// CharSets is a map of slices containing the available character sets
+// CharSets contains several common spinners to use
 var CharSets = [][]string{
 	[]string{"←", "↖", "↑", "↗", "→", "↘", "↓", "↙"},
 	[]string{"▁", "▃", "▄", "▅", "▆", "▇", "█", "▇", "▆", "▅", "▄", "▃"},
