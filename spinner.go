@@ -51,11 +51,6 @@ var CharSets = [][]string{
 	[]string{"⠋", "⠙", "⠚", "⠒", "⠂", "⠂", "⠒", "⠲", "⠴", "⠦", "⠖", "⠒", "⠐", "⠐", "⠒", "⠓", "⠋"},
 }
 
-var (
-	// StopChan is a bool typed channel used to stop the spinner
-	StopChan = make(chan bool, 1)
-)
-
 // Spinner struct to hold the provided options
 type Spinner struct {
 	Chars     []string
@@ -64,6 +59,7 @@ type Spinner struct {
 	Direction string
 	Prefix,
 	Suffix string
+	stopChan chan bool
 }
 
 // New provides a pointer to an instance of Spinner with the supplied options
@@ -72,6 +68,7 @@ func New(c []string, t time.Duration) *Spinner {
 		Chars:     c,
 		Delay:     t,
 		Direction: "right",
+		stopChan:  make(chan bool, 1),
 	}
 }
 
@@ -81,7 +78,7 @@ func (s *Spinner) Start() {
 		for {
 			for i := 0; i < len(s.Chars); i++ {
 				select {
-				case <-StopChan:
+				case <-s.stopChan:
 					return
 				default:
 					fmt.Printf("\r%s%s%s ", s.Prefix, s.Chars[i], s.Suffix)
@@ -93,7 +90,7 @@ func (s *Spinner) Start() {
 }
 
 // Stop stops the spinner
-func (s *Spinner) Stop() { StopChan <- true }
+func (s *Spinner) Stop() { s.stopChan <- true }
 
 // Restart will stop and start the spinner
 func (s *Spinner) Restart() {
