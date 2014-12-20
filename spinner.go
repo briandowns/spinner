@@ -53,10 +53,8 @@ var CharSets = [][]string{
 
 // Spinner struct to hold the provided options
 type Spinner struct {
-	Chars     []string
-	OrigChars []string
-	Delay     time.Duration
-	Direction string
+	chars []string
+	Delay time.Duration
 	Prefix,
 	Suffix string
 	stopChan chan bool
@@ -64,24 +62,24 @@ type Spinner struct {
 
 // New provides a pointer to an instance of Spinner with the supplied options
 func New(c []string, t time.Duration) *Spinner {
-	return &Spinner{
-		Chars:     c,
-		Delay:     t,
-		Direction: "right",
-		stopChan:  make(chan bool, 1),
+	s := &Spinner{
+		Delay:    t,
+		stopChan: make(chan bool, 1),
 	}
+	s.UpdateCharSet(c)
+	return s
 }
 
 // Start will start the spinner
 func (s *Spinner) Start() {
 	go func() {
 		for {
-			for i := 0; i < len(s.Chars); i++ {
+			for i := 0; i < len(s.chars); i++ {
 				select {
 				case <-s.stopChan:
 					return
 				default:
-					fmt.Printf("\r%s%s%s ", s.Prefix, s.Chars[i], s.Suffix)
+					fmt.Printf("\r%s%s%s ", s.Prefix, s.chars[i], s.Suffix)
 					time.Sleep(s.Delay)
 				}
 			}
@@ -100,18 +98,8 @@ func (s *Spinner) Restart() {
 
 // Reverse will reverse the order of the slice assigned to that spinner
 func (s *Spinner) Reverse() {
-	var revChars []string
-	s.OrigChars = s.Chars
-	switch {
-	case s.Direction == "right":
-		for i := len(s.Chars) - 1; i >= 0; i-- {
-			revChars = append(revChars, s.Chars[i])
-		}
-		s.Chars = revChars
-		s.Direction = "left"
-	case s.Direction == "left":
-		s.Chars = s.OrigChars
-		s.Direction = "right"
+	for i, j := 0, len(s.chars)-1; i < j; i, j = i+1, j-1 {
+		s.chars[i], s.chars[j] = s.chars[j], s.chars[i]
 	}
 }
 
@@ -121,7 +109,13 @@ func (s *Spinner) UpdateSpeed(delay time.Duration) { s.Delay = delay }
 
 // UpdateCharSet will change the previously select character set to
 // the provided one
-func (s *Spinner) UpdateCharSet(chars []string) { s.Chars = chars }
+func (s *Spinner) UpdateCharSet(chars []string) {
+	// so that changes to the slice outside of the spinner don't change it
+	// unexpectedly, create an internal copy
+	n := make([]string, len(chars))
+	copy(n, chars)
+	s.chars = n
+}
 
 // GenerateNumberSequence will generate a slice of integers at the
 // provided length and convert them each to a string
