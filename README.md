@@ -118,6 +118,13 @@ func main() {
 }
 ```
 
+## Prefix or append text to the spinner
+
+```Go
+s.Prefix = "prefixed text: " // Prefix text before the spinner
+s.Suffix = "  :appended text" // Append text after the spinner
+```
+
 ## Generate a sequence of numbers
 
 ```Go
