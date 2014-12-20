@@ -30,7 +30,7 @@ func TestNew(t *testing.T) {
 
 // TestStart will verify a spinner can be started
 func TestStart(t *testing.T) {
-	s := New(CharSets[10], 500*time.Millisecond)
+	s := New(CharSets[9], 500*time.Millisecond)
 	s.Start()
 	time.Sleep(6 * time.Second)
 	s.Stop()
@@ -86,9 +86,9 @@ func TestUpdateSpeed(t *testing.T) {
 
 // TestUpdateCharSet verifies that character sets can be updated
 func TestUpdateCharSet(t *testing.T) {
-	s := New(CharSets[15], 1*time.Second)
+	s := New(CharSets[14], 1*time.Second)
 	charSet1 := s.Chars
-	s.UpdateCharSet(CharSets[2])
+	s.UpdateCharSet(CharSets[1])
 	charSet2 := s.Chars
 	for i := range charSet1 {
 		if charSet1[i] == charSet2[i] {
