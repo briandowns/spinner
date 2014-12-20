@@ -30,7 +30,8 @@ func TestNew(t *testing.T) {
 
 // TestStart will verify a spinner can be started
 func TestStart(t *testing.T) {
-	s := New(CharSets[26], 500*time.Millisecond)
+	s := New(CharSets[25], 500*time.Millisecond)
+	s.Start()
 	s.Start()
 	time.Sleep(6 * time.Second)
 	s.Stop()

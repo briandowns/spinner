@@ -16,8 +16,10 @@
 package spinner
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
+	"sync"
 	"time"
 )
 
@@ -53,12 +55,23 @@ var CharSets = [][]string{
 
 // Spinner struct to hold the provided options
 type Spinner struct {
-	chars []string
-	Delay time.Duration
-	Prefix,
-	Suffix string
+	chars    []string
+	Delay    time.Duration
+	Prefix   string
+	Suffix   string
 	stopChan chan bool
+	st       state
+	sync.Mutex
 }
+
+type state uint8
+
+const (
+	stopped state = iota
+	running
+)
+
+var ErrRunning = errors.New("spinner: already running")
 
 // New provides a pointer to an instance of Spinner with the supplied options
 func New(c []string, t time.Duration) *Spinner {
@@ -71,7 +84,13 @@ func New(c []string, t time.Duration) *Spinner {
 }
 
 // Start will start the spinner
-func (s *Spinner) Start() {
+func (s *Spinner) Start() error {
+	s.Lock()
+	defer s.Unlock()
+	if s.st == running {
+		return ErrRunning
+	}
+	s.st = running
 	go func() {
 		for {
 			for i := 0; i < len(s.chars); i++ {
@@ -85,10 +104,18 @@ func (s *Spinner) Start() {
 			}
 		}
 	}()
+	return nil
 }
 
 // Stop stops the spinner
-func (s *Spinner) Stop() { s.stopChan <- true }
+func (s *Spinner) Stop() {
+	s.Lock()
+	defer s.Unlock()
+	if s.st == running {
+		s.stopChan <- true
+		s.st = stopped
+	}
+}
 
 // Restart will stop and start the spinner
 func (s *Spinner) Restart() {
@@ -98,6 +125,8 @@ func (s *Spinner) Restart() {
 
 // Reverse will reverse the order of the slice assigned to that spinner
 func (s *Spinner) Reverse() {
+	s.Lock()
+	defer s.Unlock()
 	for i, j := 0, len(s.chars)-1; i < j; i, j = i+1, j-1 {
 		s.chars[i], s.chars[j] = s.chars[j], s.chars[i]
 	}
@@ -112,6 +141,8 @@ func (s *Spinner) UpdateSpeed(delay time.Duration) { s.Delay = delay }
 func (s *Spinner) UpdateCharSet(chars []string) {
 	// so that changes to the slice outside of the spinner don't change it
 	// unexpectedly, create an internal copy
+	s.Lock()
+	defer s.Unlock()
 	n := make([]string, len(chars))
 	copy(n, chars)
 	s.chars = n
