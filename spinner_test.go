@@ -15,6 +15,7 @@
 package spinner
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 	"time"
@@ -108,4 +109,15 @@ func TestGenerateNumberSequence(t *testing.T) {
 	if len(seq) != elementCount {
 		t.Error("number of elements in slice doesn't match expected count")
 	}
+}
+
+func TestMultiple(t *testing.T) {
+	fmt.Println("TestMultiple")
+	a := New(CharSets[0], 100*time.Millisecond)
+	b := New(CharSets[1], 250*time.Millisecond)
+	a.Start()
+	b.Start()
+	time.Sleep(3 * time.Second)
+	a.Stop()
+	b.Stop()
 }
