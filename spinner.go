@@ -73,6 +73,8 @@ const (
 
 var ErrRunning = errors.New("spinner: already running")
 
+var runlock sync.Mutex
+
 // New provides a pointer to an instance of Spinner with the supplied options
 func New(c []string, t time.Duration) *Spinner {
 	s := &Spinner{
@@ -92,6 +94,8 @@ func (s *Spinner) Start() error {
 	}
 	s.st = running
 	go func() {
+		runlock.Lock()
+		defer runlock.Unlock()
 		for {
 			for i := 0; i < len(s.chars); i++ {
 				select {
