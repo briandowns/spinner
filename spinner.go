@@ -54,10 +54,10 @@ var CharSets = [][]string{
 
 // Spinner struct to hold the provided options
 type Spinner struct {
-	chars []string
-	Delay time.Duration
-	Prefix,
-	Suffix string
+	chars    []string
+	Delay    time.Duration
+	Prefix   string
+	Suffix   string
 	stopChan chan bool
 }
 
