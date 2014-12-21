@@ -15,6 +15,7 @@
 package spinner
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 	"time"
@@ -32,6 +33,9 @@ func TestNew(t *testing.T) {
 func TestStart(t *testing.T) {
 	s := New(CharSets[25], 100*time.Millisecond)
 	s.Start()
+	if err := s.Start(); err != nil {
+		fmt.Println(err)
+	}
 	time.Sleep(6 * time.Second)
 	s.Stop()
 	s = nil
