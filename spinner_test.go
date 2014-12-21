@@ -31,8 +31,7 @@ func TestNew(t *testing.T) {
 
 // TestStart will verify a spinner can be started
 func TestStart(t *testing.T) {
-	s := New(CharSets[25], 500*time.Millisecond)
-	s.Start()
+	s := New(CharSets[25], 100*time.Millisecond)
 	s.Start()
 	time.Sleep(6 * time.Second)
 	s.Stop()
@@ -41,7 +40,7 @@ func TestStart(t *testing.T) {
 
 // TestStop will verify a spinner can be stopped
 func TestStop(t *testing.T) {
-	p := New(CharSets[14], 500*time.Millisecond)
+	p := New(CharSets[14], 100*time.Millisecond)
 	p.Start()
 	time.Sleep(6 * time.Second)
 	p.Stop()
