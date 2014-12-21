@@ -96,19 +96,28 @@ func (s *Spinner) Start() error {
 	go func() {
 		runlock.Lock()
 		defer runlock.Unlock()
+		prevLen := 0
 		for {
 			for i := 0; i < len(s.chars); i++ {
 				select {
 				case <-s.stopChan:
 					return
 				default:
-					fmt.Printf("\r%s%s%s ", s.Prefix, s.chars[i], s.Suffix)
+					fmt.Printf("%s%s%s ", s.Prefix, s.chars[i], s.Suffix)
+					prevLen = len(s.Prefix) + len(s.chars[i]) + len(s.Suffix) + 1
 					time.Sleep(s.Delay)
+					erase(prevLen)
 				}
 			}
 		}
 	}()
 	return nil
+}
+
+func erase(n int) {
+	for i := 0; i < n; i++ {
+		fmt.Printf("\b")
+	}
 }
 
 // Stop stops the spinner

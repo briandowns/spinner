@@ -15,7 +15,6 @@
 package spinner
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 	"time"
@@ -34,7 +33,7 @@ func TestStart(t *testing.T) {
 	s := New(CharSets[25], 500*time.Millisecond)
 	s.Start()
 	s.Start()
-	time.Sleep(6 * time.Second)
+	time.Sleep(3 * time.Second)
 	s.Stop()
 	s = nil
 }
@@ -43,7 +42,7 @@ func TestStart(t *testing.T) {
 func TestStop(t *testing.T) {
 	p := New(CharSets[14], 500*time.Millisecond)
 	p.Start()
-	time.Sleep(6 * time.Second)
+	time.Sleep(3 * time.Second)
 	p.Stop()
 	p = nil
 }
@@ -63,13 +62,13 @@ func TestRestart(t *testing.T) {
 func TestReverse(t *testing.T) {
 	a := New(CharSets[10], 1*time.Second)
 	a.Start()
-	time.Sleep(6 * time.Second)
+	time.Sleep(3 * time.Second)
 	a.Reverse()
 	a.Restart()
-	time.Sleep(6 * time.Second)
+	time.Sleep(3 * time.Second)
 	a.Reverse()
 	a.Restart()
-	time.Sleep(6 * time.Second)
+	time.Sleep(3 * time.Second)
 	a.Stop()
 	a = nil
 }
@@ -113,12 +112,12 @@ func TestGenerateNumberSequence(t *testing.T) {
 }
 
 func TestMultiple(t *testing.T) {
-	fmt.Println("TestMultiple")
 	a := New(CharSets[0], 100*time.Millisecond)
 	b := New(CharSets[1], 250*time.Millisecond)
 	a.Start()
 	b.Start()
 	time.Sleep(3 * time.Second)
 	a.Stop()
+	time.Sleep(3 * time.Second)
 	b.Stop()
 }
