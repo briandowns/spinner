@@ -72,8 +72,7 @@ const (
 	running
 )
 
-var ErrRunning = errors.New("spinner: already running")
-
+var errRunning = errors.New("spinner: already running")
 var runlock sync.Mutex
 
 // New provides a pointer to an instance of Spinner with the supplied options
@@ -91,7 +90,7 @@ func (s *Spinner) Start() error {
 	s.Lock()
 	defer s.Unlock()
 	if s.st == running {
-		return ErrRunning
+		return errRunning
 	}
 	s.st = running
 	go func() {
