@@ -15,6 +15,7 @@
 package spinner
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 	"time"
@@ -120,4 +121,17 @@ func TestMultiple(t *testing.T) {
 	a.Stop()
 	time.Sleep(3 * time.Second)
 	b.Stop()
+}
+
+// TestBackspace proves that the correct number of characters are removed.
+func TestBackspace(t *testing.T) {
+	// Because of buffering of output and time weirdness, somethings
+	// are broken for an indeterminant reason without a wait
+	time.Sleep(75 * time.Millisecond)
+	fmt.Println()
+	s := New(CharSets[0], 100*time.Millisecond)
+	s.Start()
+	fmt.Print("This is on the same line as the spinner: ")
+	time.Sleep(4 * time.Second)
+	s.Stop()
 }

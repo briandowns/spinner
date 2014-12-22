@@ -20,6 +20,7 @@ import (
 	"strconv"
 	"sync"
 	"time"
+	"unicode/utf8"
 )
 
 // CharSets contains the available character sets
@@ -91,20 +92,20 @@ func (s *Spinner) Start() {
 		return
 	}
 	s.st = running
+
 	go func() {
 		runlock.Lock()
 		defer runlock.Unlock()
-		prevLen := 0
 		for {
 			for i := 0; i < len(s.chars); i++ {
 				select {
 				case <-s.stopChan:
 					return
 				default:
-					fmt.Printf("%s%s%s ", s.Prefix, s.chars[i], s.Suffix)
-					prevLen = len(s.Prefix) + len(s.chars[i]) + len(s.Suffix) + 1
+					out := fmt.Sprintf("%s%s%s ", s.Prefix, s.chars[i], s.Suffix)
+					fmt.Print(out)
 					time.Sleep(s.Delay)
-					erase(prevLen)
+					erase(out)
 				}
 			}
 		}
@@ -112,7 +113,8 @@ func (s *Spinner) Start() {
 	return
 }
 
-func erase(n int) {
+func erase(a string) {
+	n := utf8.RuneCountInString(a)
 	for i := 0; i < n; i++ {
 		fmt.Printf("\b")
 	}
