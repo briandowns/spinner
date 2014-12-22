@@ -16,7 +16,6 @@
 package spinner
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 	"sync"
@@ -71,8 +70,6 @@ const (
 	running
 )
 
-var ErrRunning = errors.New("spinner: already running")
-
 var runlock sync.Mutex
 
 // New provides a pointer to an instance of Spinner with the supplied options
@@ -86,11 +83,11 @@ func New(c []string, t time.Duration) *Spinner {
 }
 
 // Start will start the spinner
-func (s *Spinner) Start() error {
+func (s *Spinner) Start() {
 	s.Lock()
 	defer s.Unlock()
 	if s.st == running {
-		return ErrRunning
+		return
 	}
 	s.st = running
 	go func() {
@@ -111,7 +108,7 @@ func (s *Spinner) Start() error {
 			}
 		}
 	}()
-	return nil
+	return
 }
 
 func erase(n int) {
