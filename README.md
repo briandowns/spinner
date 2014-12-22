@@ -1,8 +1,8 @@
 # Spinner
 
-Package spinner is a simple package to add a spinner to an application.
+[![GoDoc](https://godoc.org/github.com/briandowns/spinner?status.svg)](https://godoc.org/github.com/briandowns/spinner) [![Build Status](https://travis-ci.org/briandowns/spinner.svg?branch=master)](https://travis-ci.org/briandowns/spinner)
 
-[![GoDoc](https://godoc.org/github.com/briandowns/spinner?status.svg)](https://godoc.org/github.com/briandowns/spinner)
+Package spinner is a simple package to add a spinner to an application.
 
 For more detail about the library and its features, reference your local godoc once installed.
 
@@ -43,6 +43,7 @@ go get github.com/briandowns/spinner
 * 23. ⠁⠉⠙⠚⠒⠂⠂⠒⠲⠴⠤⠄⠄⠤⠴⠲⠒⠂⠂⠒⠚⠙⠉⠁
 * 24. ⠋⠙⠚⠒⠂⠂⠒⠲⠴⠦⠖⠒⠐⠐⠒⠓⠋
 * 25. ｦｧｨｩｪｫｬｭｮｯｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ
+* 26. . .. ...
 
 ## Features
 

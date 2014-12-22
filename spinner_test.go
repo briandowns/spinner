@@ -15,6 +15,7 @@
 package spinner
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 	"time"
@@ -30,17 +31,19 @@ func TestNew(t *testing.T) {
 
 // TestStart will verify a spinner can be started
 func TestStart(t *testing.T) {
-	s := New(CharSets[25], 500*time.Millisecond)
+	s := New(CharSets[25], 100*time.Millisecond)
 	s.Start()
-	s.Start()
-	time.Sleep(3 * time.Second)
+	if err := s.Start(); err != nil {
+		fmt.Println(err)
+	}
+	time.Sleep(6 * time.Second)
 	s.Stop()
 	s = nil
 }
 
 // TestStop will verify a spinner can be stopped
 func TestStop(t *testing.T) {
-	p := New(CharSets[14], 500*time.Millisecond)
+	p := New(CharSets[14], 100*time.Millisecond)
 	p.Start()
 	time.Sleep(3 * time.Second)
 	p.Stop()
@@ -111,12 +114,13 @@ func TestGenerateNumberSequence(t *testing.T) {
 	}
 }
 
+// TestMultiple will
 func TestMultiple(t *testing.T) {
 	a := New(CharSets[0], 100*time.Millisecond)
 	b := New(CharSets[1], 250*time.Millisecond)
 	a.Start()
 	b.Start()
-	time.Sleep(3 * time.Second)
+	time.Sleep(4 * time.Second)
 	a.Stop()
 	time.Sleep(3 * time.Second)
 	b.Stop()
