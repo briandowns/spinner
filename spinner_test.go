@@ -32,7 +32,6 @@ func TestNew(t *testing.T) {
 func TestStart(t *testing.T) {
 	s := New(CharSets[25], 100*time.Millisecond)
 	s.Start()
-	s.Start()
 	time.Sleep(6 * time.Second)
 	s.Stop()
 	s = nil
@@ -62,13 +61,13 @@ func TestRestart(t *testing.T) {
 func TestReverse(t *testing.T) {
 	a := New(CharSets[10], 1*time.Second)
 	a.Start()
-	time.Sleep(3 * time.Second)
+	time.Sleep(4 * time.Second)
 	a.Reverse()
 	a.Restart()
-	time.Sleep(3 * time.Second)
+	time.Sleep(4 * time.Second)
 	a.Reverse()
 	a.Restart()
-	time.Sleep(3 * time.Second)
+	time.Sleep(4 * time.Second)
 	a.Stop()
 	a = nil
 }
