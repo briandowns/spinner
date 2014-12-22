@@ -114,9 +114,9 @@ func (s *Spinner) Start() {
 			}
 		}
 	}()
-	return
 }
 
+// erase deletes written characters
 func erase(w io.Writer, a string) {
 	n := utf8.RuneCountInString(a)
 	for i := 0; i < n; i++ {
