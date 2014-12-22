@@ -16,11 +16,11 @@
 package spinner
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 	"sync"
 	"time"
+	"unicode/utf8"
 )
 
 // CharSets contains the available character sets
@@ -72,7 +72,6 @@ const (
 	running
 )
 
-var errRunning = errors.New("spinner: already running")
 var runlock sync.Mutex
 
 // New provides a pointer to an instance of Spinner with the supplied options
@@ -86,13 +85,14 @@ func New(c []string, t time.Duration) *Spinner {
 }
 
 // Start will start the spinner
-func (s *Spinner) Start() error {
+func (s *Spinner) Start() {
 	s.Lock()
 	defer s.Unlock()
 	if s.st == running {
-		return errRunning
+		return
 	}
 	s.st = running
+
 	go func() {
 		runlock.Lock()
 		defer runlock.Unlock()
@@ -102,13 +102,22 @@ func (s *Spinner) Start() error {
 				case <-s.stopChan:
 					return
 				default:
-					fmt.Printf("\r%s%s%s ", s.Prefix, s.chars[i], s.Suffix)
+					out := fmt.Sprintf("%s%s%s ", s.Prefix, s.chars[i], s.Suffix)
+					fmt.Print(out)
 					time.Sleep(s.Delay)
+					erase(out)
 				}
 			}
 		}
 	}()
-	return nil
+	return
+}
+
+func erase(a string) {
+	n := utf8.RuneCountInString(a)
+	for i := 0; i < n; i++ {
+		fmt.Printf("\b")
+	}
 }
 
 // Stop stops the spinner

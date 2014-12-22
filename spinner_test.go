@@ -33,9 +33,6 @@ func TestNew(t *testing.T) {
 func TestStart(t *testing.T) {
 	s := New(CharSets[25], 100*time.Millisecond)
 	s.Start()
-	if err := s.Start(); err != nil {
-		fmt.Println(err)
-	}
 	time.Sleep(6 * time.Second)
 	s.Stop()
 	s = nil
@@ -45,7 +42,7 @@ func TestStart(t *testing.T) {
 func TestStop(t *testing.T) {
 	p := New(CharSets[14], 100*time.Millisecond)
 	p.Start()
-	time.Sleep(6 * time.Second)
+	time.Sleep(3 * time.Second)
 	p.Stop()
 	p = nil
 }
@@ -122,5 +119,19 @@ func TestMultiple(t *testing.T) {
 	b.Start()
 	time.Sleep(4 * time.Second)
 	a.Stop()
+	time.Sleep(3 * time.Second)
 	b.Stop()
+}
+
+// TestBackspace proves that the correct number of characters are removed.
+func TestBackspace(t *testing.T) {
+	// Because of buffering of output and time weirdness, somethings
+	// are broken for an indeterminant reason without a wait
+	time.Sleep(75 * time.Millisecond)
+	fmt.Println()
+	s := New(CharSets[0], 100*time.Millisecond)
+	s.Start()
+	fmt.Print("This is on the same line as the spinner: ")
+	time.Sleep(4 * time.Second)
+	s.Stop()
 }
