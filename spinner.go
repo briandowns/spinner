@@ -17,6 +17,8 @@ package spinner
 
 import (
 	"fmt"
+	"io"
+	"os"
 	"strconv"
 	"sync"
 	"time"
@@ -62,6 +64,7 @@ type Spinner struct {
 	Suffix   string
 	stopChan chan bool
 	st       state
+	w        io.Writer // to make testing better
 	sync.Mutex
 }
 
@@ -79,6 +82,7 @@ func New(c []string, t time.Duration) *Spinner {
 	s := &Spinner{
 		Delay:    t,
 		stopChan: make(chan bool, 1),
+		w:        os.Stdout,
 	}
 	s.UpdateCharSet(c)
 	return s
@@ -103,9 +107,9 @@ func (s *Spinner) Start() {
 					return
 				default:
 					out := fmt.Sprintf("%s%s%s ", s.Prefix, s.chars[i], s.Suffix)
-					fmt.Print(out)
+					fmt.Fprint(s.w, out)
 					time.Sleep(s.Delay)
-					erase(out)
+					erase(s.w, out)
 				}
 			}
 		}
@@ -113,10 +117,10 @@ func (s *Spinner) Start() {
 	return
 }
 
-func erase(a string) {
+func erase(w io.Writer, a string) {
 	n := utf8.RuneCountInString(a)
 	for i := 0; i < n; i++ {
-		fmt.Printf("\b")
+		fmt.Fprintf(w, "\b")
 	}
 }
 

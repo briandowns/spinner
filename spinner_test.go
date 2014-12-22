@@ -15,11 +15,23 @@
 package spinner
 
 import (
+	"bytes"
 	"fmt"
 	"reflect"
 	"testing"
 	"time"
 )
+
+func withOutput(a []string, d time.Duration) (*Spinner, *bytes.Buffer) {
+	s := New(a, d)
+	out := new(bytes.Buffer)
+	s.w = out
+	return s, out
+}
+
+func byteSlicesEq(a []byte, b []byte) bool {
+	return string(a) == string(b)
+}
 
 // TestNew verifies that the returned instance is of the proper type
 func TestNew(t *testing.T) {
@@ -31,30 +43,54 @@ func TestNew(t *testing.T) {
 
 // TestStart will verify a spinner can be started
 func TestStart(t *testing.T) {
-	s := New(CharSets[25], 100*time.Millisecond)
+	s, out := withOutput(CharSets[25], 100*time.Millisecond)
 	s.Start()
-	time.Sleep(6 * time.Second)
+	dur := 400
+	expect := (6 * dur) / 100
+	time.Sleep(time.Duration(dur) * time.Millisecond)
 	s.Stop()
-	s = nil
+	time.Sleep(100 * time.Millisecond)
+	if out.Len() != expect {
+		t.Errorf("expected %v, got %v", expect, out.Len())
+	}
 }
 
 // TestStop will verify a spinner can be stopped
 func TestStop(t *testing.T) {
-	p := New(CharSets[14], 100*time.Millisecond)
+	p, out := withOutput(CharSets[14], 100*time.Millisecond)
 	p.Start()
-	time.Sleep(3 * time.Second)
+	time.Sleep(500 * time.Millisecond)
 	p.Stop()
+	// because the spinner will print an appropriate number of backspaces before stopping,
+	// let it complete that sleep
+	time.Sleep(100 * time.Millisecond)
+	len1 := out.Len()
+	time.Sleep(300 * time.Millisecond)
+	len2 := out.Len()
+	if len1 != len2 {
+		t.Errorf("expected equal, got %v != %v", len1, len2)
+	}
 	p = nil
 }
 
 // TestRestart will verify a spinner can be stopped and started again
 func TestRestart(t *testing.T) {
-	s := New(CharSets[4], 1*time.Second)
+	s := New(CharSets[4], 50*time.Millisecond)
+	out := new(bytes.Buffer)
+	s.w = out
 	s.Start()
-	time.Sleep(2 * time.Second)
+	time.Sleep(200 * time.Millisecond)
 	s.Restart()
-	time.Sleep(2 * time.Second)
+	time.Sleep(200 * time.Millisecond)
 	s.Stop()
+	time.Sleep(50 * time.Millisecond)
+
+	result := out.Bytes()
+	first := result[:len(result)/2]
+	secnd := result[len(result)/2:]
+	if !byteSlicesEq(first, secnd) {
+		t.Errorf("Expected ==, got \n%#v != \n%#v", first, secnd)
+	}
 	s = nil
 }
 
