@@ -2,7 +2,7 @@
 
 [![GoDoc](https://godoc.org/github.com/briandowns/spinner?status.svg)](https://godoc.org/github.com/briandowns/spinner) [![Build Status](https://travis-ci.org/briandowns/spinner.svg?branch=master)](https://travis-ci.org/briandowns/spinner)
 
-Package spinner is a simple package to add a spinner to an application.
+spinner is a simple package to add a spinner to any terminal application. Examples can be found below as well as full examples in the examples directory.
 
 For more detail about the library and its features, reference your local godoc once installed.
 
@@ -15,7 +15,7 @@ go get github.com/briandowns/spinner
 ```
 
 ## Available Character Sets
-(Numbered by their index in the slice)
+(Numbered by their slice index)
 
 * 0. ←↖↑↗→↘↓↙
 * 1. ▁▃▄▅▆▇█▇▆▅▄▃
@@ -73,7 +73,7 @@ func main() {
 }
 ```
 
-## Update the spinner and restart the spinner
+## Update the character set and restart the spinner
 
 ```Go
 s.UpdateCharSet(spinner.CharSets[1])  // Update spinner to use a different character set
