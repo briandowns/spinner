@@ -47,13 +47,13 @@ go get github.com/briandowns/spinner
 
 ## Features
 
-Start
-Stop
-Restart
-Reverse direction
-Update the spinner character set
-Update the spinner speed
-Prefix or append text
+* Start
+* Stop
+* Restart
+* Reverse direction
+* Update the spinner character set
+* Update the spinner speed
+* Prefix or append text
 
 ## Examples
 
