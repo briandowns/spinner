@@ -46,6 +46,8 @@ go get github.com/briandowns/spinner
 * 26. . .. ...
 * 27. ▁▂▃▄▅▆▇█▉▊▋▌▍▎▏▏▎▍▌▋▊▉█▇▆▅▄▃▂▁
 * 28. .oO°Oo.
+* 29. +x
+* 30. v<^>
 
 ## Features
 
