@@ -117,6 +117,12 @@ s.Prefix = "prefixed text: " // Prefix text before the spinner
 s.Suffix = "  :appended text" // Append text after the spinner
 ```
 
+## Set or change the color of the spinner.  Default color is white.  This will restart the spinner with the new color.
+
+```Go
+s.Color("red") // Set the spinner color to red
+```
+
 ## Generate a sequence of numbers
 
 ```Go
