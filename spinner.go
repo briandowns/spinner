@@ -16,6 +16,7 @@
 package spinner
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -23,6 +24,8 @@ import (
 	"sync"
 	"time"
 	"unicode/utf8"
+
+	"github.com/fatih/color"
 )
 
 // CharSets contains the available character sets
@@ -55,7 +58,12 @@ var CharSets = [][]string{
 	{"ｦ", "ｧ", "ｨ", "ｩ", "ｪ", "ｫ", "ｬ", "ｭ", "ｮ", "ｯ", "ｱ", "ｲ", "ｳ", "ｴ", "ｵ", "ｶ", "ｷ", "ｸ", "ｹ", "ｺ", "ｻ", "ｼ", "ｽ", "ｾ", "ｿ", "ﾀ", "ﾁ", "ﾂ", "ﾃ", "ﾄ", "ﾅ", "ﾆ", "ﾇ", "ﾈ", "ﾉ", "ﾊ", "ﾋ", "ﾌ", "ﾍ", "ﾎ", "ﾏ", "ﾐ", "ﾑ", "ﾒ", "ﾓ", "ﾔ", "ﾕ", "ﾖ", "ﾗ", "ﾘ", "ﾙ", "ﾚ", "ﾛ", "ﾜ", "ﾝ"},
 	{".", "..", "..."},
 	{"▁", "▂", "▃", "▄", "▅", "▆", "▇", "█", "▉", "▊", "▋", "▌", "▍", "▎", "▏", "▏", "▎", "▍", "▌", "▋", "▊", "▉", "█", "▇", "▆", "▅", "▄", "▃", "▂", "▁"},
+	{".", "o", "O", "°", "O", "o", "."},
+	{"+", "x"},
+	{"v", "<", "^", ">"},
 }
+
+type state uint8
 
 // Spinner struct to hold the provided options
 type Spinner struct {
@@ -65,11 +73,10 @@ type Spinner struct {
 	Suffix   string
 	stopChan chan bool
 	st       state
-	w        io.Writer // to make testing better
+	w        io.Writer                     // to make testing better
+	color    func(a ...interface{}) string // default color is white
 	sync.Mutex
 }
-
-type state uint8
 
 const (
 	stopped state = iota
@@ -77,12 +84,24 @@ const (
 )
 
 var runlock sync.Mutex
+var validColors = []string{"red", "green", "yellow", "blue", "magenta", "cyan", "white"}
+
+// validColor will make sure the given color is actually allowed
+func validColor(c string) bool {
+	for _, i := range validColors {
+		if c == i {
+			return true
+		}
+	}
+	return false
+}
 
 // New provides a pointer to an instance of Spinner with the supplied options
 func New(c []string, t time.Duration) *Spinner {
 	s := &Spinner{
 		Delay:    t,
 		stopChan: make(chan bool, 1),
+		color:    color.New(color.FgWhite).SprintFunc(),
 		w:        os.Stdout,
 	}
 	s.UpdateCharSet(c)
@@ -97,7 +116,6 @@ func (s *Spinner) Start() {
 		return
 	}
 	s.st = running
-
 	go func() {
 		runlock.Lock()
 		defer runlock.Unlock()
@@ -107,7 +125,7 @@ func (s *Spinner) Start() {
 				case <-s.stopChan:
 					return
 				default:
-					out := fmt.Sprintf("%s%s%s ", s.Prefix, s.chars[i], s.Suffix)
+					out := fmt.Sprintf("%s%s%s ", s.Prefix, s.color(s.chars[i]), s.Suffix)
 					fmt.Fprint(s.w, out)
 					time.Sleep(s.Delay)
 					erase(s.w, out)
@@ -123,6 +141,35 @@ func erase(w io.Writer, a string) {
 	for i := 0; i < n; i++ {
 		fmt.Fprintf(w, "\b")
 	}
+}
+
+func (s *Spinner) Color(c string) error {
+	if validColor(c) {
+		switch {
+		case c == "red":
+			s.color = color.New(color.FgRed).SprintFunc()
+			s.Restart()
+		case c == "yellow":
+			s.color = color.New(color.FgYellow).SprintFunc()
+			s.Restart()
+		case c == "green":
+			s.color = color.New(color.FgGreen).SprintFunc()
+			s.Restart()
+		case c == "magenta":
+			s.color = color.New(color.FgMagenta).SprintFunc()
+			s.Restart()
+		case c == "blue":
+			s.color = color.New(color.FgBlue).SprintFunc()
+			s.Restart()
+		case c == "cyan":
+			s.color = color.New(color.FgCyan).SprintFunc()
+			s.Restart()
+		case c == "white":
+			s.color = color.New(color.FgWhite).SprintFunc()
+			s.Restart()
+		}
+	}
+	return errors.New("invalid color")
 }
 
 // Stop stops the spinner

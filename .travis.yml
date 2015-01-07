@@ -6,7 +6,7 @@ env:
   - GOARCH: amd64
   - GOARCH: 386
 script:
-  - go test -v ./...
+  - go test -v
 notifications:
   email:
     recipients:

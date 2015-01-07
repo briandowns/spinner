@@ -45,6 +45,9 @@ go get github.com/briandowns/spinner
 * 25. ｦｧｨｩｪｫｬｭｮｯｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ
 * 26. . .. ...
 * 27. ▁▂▃▄▅▆▇█▉▊▋▌▍▎▏▏▎▍▌▋▊▉█▇▆▅▄▃▂▁
+* 28. .oO°Oo.
+* 29. +x
+* 30. v<^>
 
 ## Features
 
@@ -115,6 +118,12 @@ s := spinner.New(someSet, 100*time.Millisecond)
 ```Go
 s.Prefix = "prefixed text: " // Prefix text before the spinner
 s.Suffix = "  :appended text" // Append text after the spinner
+```
+
+## Set or change the color of the spinner.  Default color is white.  This will restart the spinner with the new color.
+
+```Go
+s.Color("red") // Set the spinner color to red
 ```
 
 ## Generate a sequence of numbers
