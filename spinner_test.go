@@ -88,7 +88,6 @@ func TestRestart(t *testing.T) {
 	time.Sleep(200 * time.Millisecond)
 	s.Stop()
 	time.Sleep(50 * time.Millisecond)
-
 	result := out.Bytes()
 	first := result[:len(result)/2]
 	secnd := result[len(result)/2:]
