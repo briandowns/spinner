@@ -67,12 +67,12 @@ type state uint8
 
 // Spinner struct to hold the provided options
 type Spinner struct {
-	chars    []string
-	Delay    time.Duration
-	Prefix   string
-	Suffix   string
-	stopChan chan bool
-	st       state
+	chars    []string                      // chosen character set
+	Delay    time.Duration                 // speed of the spinner
+	Prefix   string                        // Text preppended to the spinner
+	Suffix   string                        // Text appended to the spinner
+	stopChan chan bool                     // channel used to stop the spinner
+	st       state                         // spinner status
 	w        io.Writer                     // to make testing better
 	color    func(a ...interface{}) string // default color is white
 	sync.Mutex
@@ -84,6 +84,8 @@ const (
 )
 
 var runlock sync.Mutex
+
+// validColors holds an array of the only colors allowed
 var validColors = []string{"red", "green", "yellow", "blue", "magenta", "cyan", "white"}
 
 // validColor will make sure the given color is actually allowed
