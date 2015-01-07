@@ -63,6 +63,7 @@ var CharSets = [][]string{
 	{"v", "<", "^", ">"},
 }
 
+// state is a type for the spinner status
 type state uint8
 
 // Spinner struct to hold the provided options
@@ -145,6 +146,7 @@ func erase(w io.Writer, a string) {
 	}
 }
 
+// Color will set the struct field for the given color to be used
 func (s *Spinner) Color(c string) error {
 	if validColor(c) {
 		switch {
