@@ -171,9 +171,11 @@ func (s *Spinner) Color(c string) error {
 		case c == "white":
 			s.color = color.New(color.FgWhite).SprintFunc()
 			s.Restart()
+		default:
+			return errors.New("invalid color")
 		}
 	}
-	return errors.New("invalid color")
+	return nil
 }
 
 // Stop stops the spinner

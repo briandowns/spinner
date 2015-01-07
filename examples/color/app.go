@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"time"
 
 	"github.com/briandowns/spinner"
@@ -9,7 +10,9 @@ import (
 func main() {
 	s := spinner.New(spinner.CharSets[0], 100*time.Millisecond)
 	s.Prefix = "Colors: "
-	s.Color("yellow")
+	if err := s.Color("yellow"); err != nil {
+		log.Fatalln(err)
+	}
 	s.Start()
 	time.Sleep(4 * time.Second)
 
