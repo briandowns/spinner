@@ -60,6 +60,8 @@ go get github.com/briandowns/spinner
 * Update the spinner character set
 * Update the spinner speed
 * Prefix or append text
+* Change spinner color
+* Get spinner status
 
 ## Examples
 
@@ -133,4 +135,10 @@ s.Color("red") // Set the spinner color to red
 ```Go
 setOfDigits := spinner.GenerateNumberSequence(25)    // Generate a 25 digit string of numbers
 s := spinner.New(setOfDigits, 100*time.Millisecond)
+```
+
+## Get spinner status
+
+```Go
+fmt.Println(s.ST)
 ```

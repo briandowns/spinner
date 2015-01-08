@@ -73,7 +73,7 @@ type Spinner struct {
 	Prefix   string                        // Text preppended to the spinner
 	Suffix   string                        // Text appended to the spinner
 	stopChan chan bool                     // channel used to stop the spinner
-	st       state                         // spinner status
+	ST       state                         // spinner status
 	w        io.Writer                     // to make testing better
 	color    func(a ...interface{}) string // default color is white
 	sync.Mutex
@@ -116,10 +116,10 @@ func New(c []string, t time.Duration) *Spinner {
 func (s *Spinner) Start() {
 	s.Lock()
 	defer s.Unlock()
-	if s.st == running {
+	if s.ST == running {
 		return
 	}
-	s.st = running
+	s.ST = running
 	go func() {
 		runlock.Lock()
 		defer runlock.Unlock()
@@ -183,9 +183,9 @@ func (s *Spinner) Color(c string) error {
 func (s *Spinner) Stop() {
 	s.Lock()
 	defer s.Unlock()
-	if s.st == running {
+	if s.ST == running {
 		s.stopChan <- true
-		s.st = stopped
+		s.ST = stopped
 	}
 }
 
