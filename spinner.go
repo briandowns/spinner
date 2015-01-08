@@ -79,6 +79,7 @@ type Spinner struct {
 	sync.Mutex
 }
 
+//go:generate stringer -type=state
 const (
 	stopped state = iota
 	running
