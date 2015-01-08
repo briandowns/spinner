@@ -41,5 +41,18 @@ func main() {
 	s.UpdateCharSet(spinner.CharSets[25])
 	s.Restart()
 	time.Sleep(4 * time.Second)
+	if err := s.Color("magenta"); err != nil {
+		log.Fatalln(err)
+	}
+	s.UpdateCharSet(spinner.CharSets[32])
+	s.Restart()
+	time.Sleep(4 * time.Second)
+	if err := s.Color("white"); err != nil {
+		log.Fatalln(err)
+	}
+	s.UpdateCharSet(spinner.CharSets[31])
+	s.Restart()
+	time.Sleep(4 * time.Second)
 	s.Stop()
+	println("")
 }
