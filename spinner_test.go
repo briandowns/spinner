@@ -41,19 +41,13 @@ func TestNew(t *testing.T) {
 
 // TestStart will verify a spinner can be started
 func TestStart(t *testing.T) {
-	//s, out := withOutput(CharSets[25], 100*time.Millisecond)
-	//s := New(CharSets[25], 100*time.Millisecond)
-	s := New(CharSets[32], 100*time.Millisecond)
+	s := New(CharSets[1], 100*time.Millisecond)
 	s.Color("red")
 	s.Start()
 	dur := 4000
-	//expect := (6 * dur) / 100
 	time.Sleep(time.Duration(dur) * time.Millisecond)
 	s.Stop()
 	time.Sleep(100 * time.Millisecond)
-	//if out.Len() != expect {
-	//	t.Errorf("expected %v, got %v", expect, out.Len())
-	//}
 }
 
 // TestStop will verify a spinner can be stopped
