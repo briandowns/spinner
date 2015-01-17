@@ -19,7 +19,6 @@ import (
 	"io"
 	"os"
 	"strconv"
-	"sync"
 	"time"
 	"unicode/utf8"
 
@@ -29,7 +28,7 @@ import (
 // CharSets contains the available character sets
 var CharSets = [][]string{
 	{"←", "↖", "↑", "↗", "→", "↘", "↓", "↙"},
-	{"▁", "▃", "▄", "▅", "▆", "▇", "█", "▇", "▆", "▅", "▄", "▃"},
+	{"▁", "▃", "▄", "▅", "▆", "▇", "█", "▇", "▆", "▅", "▄", "▃", "▁"},
 	{"▖", "▘", "▝", "▗"},
 	{"┤", "┘", "┴", "└", "├", "┌", "┬", "┐"},
 	{"◢", "◣", "◤", "◥"},
@@ -61,6 +60,8 @@ var CharSets = [][]string{
 	{"v", "<", "^", ">"},
 	{">>--->", " >>--->", "  >>--->", "   >>--->", "    >>--->", "    <---<<", "   <---<<", "  <---<<", " <---<<", "<---<<"},
 	{"|", "||", "|||", "||||", "|||||", "|||||||", "||||||||", "|||||||", "||||||", "|||||", "||||", "|||", "||", "|"},
+	{"[          ]", "[=         ]", "[==        ]", "[===       ]", "[====      ]", "[=====     ]", "[======    ]", "[=======   ]", "[========  ]", "[========= ]", "[==========]"},
+	{"(*---------)", "(-*--------)", "(--*-------)", "(---*------)", "(----*-----)", "(-----*----)", "(------*---)", "(-------*--)", "(--------*-)", "(---------*)"},
 }
 
 // state is a type for the spinner status
@@ -76,7 +77,6 @@ type Spinner struct {
 	ST       state                         // spinner status
 	w        io.Writer                     // to make testing better
 	color    func(a ...interface{}) string // default color is white
-	sync.Mutex
 }
 
 //go:generate stringer -type=state
@@ -84,8 +84,6 @@ const (
 	stopped state = iota
 	running
 )
-
-var runlock sync.Mutex
 
 // validColors holds an array of the only colors allowed
 var validColors = []string{"red", "green", "yellow", "blue", "magenta", "cyan", "white"}
@@ -114,15 +112,11 @@ func New(c []string, t time.Duration) *Spinner {
 
 // Start will start the spinner
 func (s *Spinner) Start() {
-	s.Lock()
-	defer s.Unlock()
 	if s.ST == running {
 		return
 	}
 	s.ST = running
 	go func() {
-		runlock.Lock()
-		defer runlock.Unlock()
 		for {
 			for i := 0; i < len(s.chars); i++ {
 				select {
@@ -181,8 +175,6 @@ func (s *Spinner) Color(c string) error {
 
 // Stop stops the spinner
 func (s *Spinner) Stop() {
-	s.Lock()
-	defer s.Unlock()
 	if s.ST == running {
 		s.stopChan <- true
 		s.ST = stopped
@@ -197,8 +189,6 @@ func (s *Spinner) Restart() {
 
 // Reverse will reverse the order of the slice assigned to that spinner
 func (s *Spinner) Reverse() {
-	s.Lock()
-	defer s.Unlock()
 	for i, j := 0, len(s.chars)-1; i < j; i, j = i+1, j-1 {
 		s.chars[i], s.chars[j] = s.chars[j], s.chars[i]
 	}
@@ -213,8 +203,6 @@ func (s *Spinner) UpdateSpeed(delay time.Duration) { s.Delay = delay }
 func (s *Spinner) UpdateCharSet(chars []string) {
 	// so that changes to the slice outside of the spinner don't change it
 	// unexpectedly, create an internal copy
-	s.Lock()
-	defer s.Unlock()
 	n := make([]string, len(chars))
 	copy(n, chars)
 	s.chars = n
