@@ -10,7 +10,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package spinner is a simple package to add a spinner/indicator to your application.
+// Package spinner is a simple package to add a spinner/progress indicator to your application.
 package spinner
 
 import (
