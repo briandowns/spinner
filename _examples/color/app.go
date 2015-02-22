@@ -1,5 +1,8 @@
 package main
 
+// Basic example of how to use the spinner package to change spinners
+// on the fly but MAINLY to show off the color capabilities.
+
 import (
 	"log"
 	"time"
