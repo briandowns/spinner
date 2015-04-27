@@ -145,26 +145,26 @@ func erase(w io.Writer, a string) {
 // Color will set the struct field for the given color to be used
 func (s *Spinner) Color(c string) error {
 	if validColor(c) {
-		switch {
-		case c == "red":
+		switch c {
+		case "red":
 			s.color = color.New(color.FgRed).SprintFunc()
 			s.Restart()
-		case c == "yellow":
+		case "yellow":
 			s.color = color.New(color.FgYellow).SprintFunc()
 			s.Restart()
-		case c == "green":
+		case "green":
 			s.color = color.New(color.FgGreen).SprintFunc()
 			s.Restart()
-		case c == "magenta":
+		case "magenta":
 			s.color = color.New(color.FgMagenta).SprintFunc()
 			s.Restart()
-		case c == "blue":
+		case "blue":
 			s.color = color.New(color.FgBlue).SprintFunc()
 			s.Restart()
-		case c == "cyan":
+		case "cyan":
 			s.color = color.New(color.FgCyan).SprintFunc()
 			s.Restart()
-		case c == "white":
+		case "white":
 			s.color = color.New(color.FgWhite).SprintFunc()
 			s.Restart()
 		default:
