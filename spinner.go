@@ -105,7 +105,7 @@ func New(c []string, t time.Duration) *Spinner {
 		Delay:    t,
 		stopChan: make(chan bool, 1),
 		color:    color.New(color.FgWhite).SprintFunc(),
-		w:        os.Stdout,
+		w:        color.Output,
 	}
 	s.UpdateCharSet(c)
 	return s
