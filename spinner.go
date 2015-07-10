@@ -70,14 +70,15 @@ type state uint8
 
 // Spinner struct to hold the provided options
 type Spinner struct {
-	chars    []string                      // chosen character set
-	Delay    time.Duration                 // speed of the spinner
-	Prefix   string                        // Text preppended to the spinner
-	Suffix   string                        // Text appended to the spinner
-	stopChan chan bool                     // channel used to stop the spinner
-	ST       state                         // spinner status
-	w        io.Writer                     // to make testing better
-	color    func(a ...interface{}) string // default color is white
+	chars      []string                      // chosen character set
+	Delay      time.Duration                 // speed of the spinner
+	Prefix     string                        // Text preppended to the spinner
+	Suffix     string                        // Text appended to the spinner
+	stopChan   chan bool                     // channel used to stop the spinner
+	ST         state                         // spinner status
+	w          io.Writer                     // to make testing better
+	color      func(a ...interface{}) string // default color is white
+	lastOutput string                        // last character(set) written
 }
 
 //go:generate stringer -type=state
@@ -126,6 +127,7 @@ func (s *Spinner) Start() {
 				default:
 					out := fmt.Sprintf("%s%s%s ", s.Prefix, s.color(s.chars[i]), s.Suffix)
 					fmt.Fprint(s.w, out)
+					s.lastOutput = out
 					time.Sleep(s.Delay)
 					erase(s.w, out)
 				}
@@ -179,6 +181,7 @@ func (s *Spinner) Stop() {
 	if s.ST == running {
 		s.stopChan <- true
 		s.ST = stopped
+		erase(s.w, s.lastOutput)
 	}
 }
 
