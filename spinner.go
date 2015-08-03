@@ -19,7 +19,6 @@ import (
 	"io"
 	"strconv"
 	"time"
-	"unicode/utf8"
 
 	"github.com/fatih/color"
 )
@@ -126,19 +125,11 @@ func (s *Spinner) Start() {
 					out := fmt.Sprintf("%s%s%s ", s.Prefix, s.color(s.chars[i]), s.Suffix)
 					fmt.Fprint(s.w, out)
 					time.Sleep(s.Delay)
-					erase(s.w, out)
+					s.erase(s.chars[i])
 				}
 			}
 		}
 	}()
-}
-
-// erase deletes written characters
-func erase(w io.Writer, a string) {
-	n := utf8.RuneCountInString(a)
-	for i := 0; i < n; i++ {
-		fmt.Fprintf(w, "\b")
-	}
 }
 
 // Color will set the struct field for the given color to be used
