@@ -17,7 +17,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"os"
 	"strconv"
 	"time"
 	"unicode/utf8"
@@ -106,7 +105,7 @@ func New(c []string, t time.Duration) *Spinner {
 		Delay:    t,
 		stopChan: make(chan bool, 1),
 		color:    color.New(color.FgWhite).SprintFunc(),
-		w:        os.Stdout,
+		w:        color.Output,
 	}
 	s.UpdateCharSet(c)
 	return s
@@ -125,8 +124,8 @@ func (s *Spinner) Start() {
 				case <-s.stopChan:
 					return
 				default:
-					out := fmt.Sprintf("%s%s%s ", s.Prefix, s.color(s.chars[i]), s.Suffix)
-					fmt.Fprint(s.w, out)
+					fmt.Fprint(s.w, fmt.Sprintf("%s%s%s ", s.Prefix, s.color(s.chars[i]), s.Suffix))
+					out := fmt.Sprintf("%s%s%s ", s.Prefix, s.chars[i], s.Suffix)
 					s.lastOutput = out
 					time.Sleep(s.Delay)
 					erase(s.w, out)
