@@ -62,18 +62,22 @@ var CharSets = [][]string{
 	{"[          ]", "[=         ]", "[==        ]", "[===       ]", "[====      ]", "[=====     ]", "[======    ]", "[=======   ]", "[========  ]", "[========= ]", "[==========]"},
 	{"(*---------)", "(-*--------)", "(--*-------)", "(---*------)", "(----*-----)", "(-----*----)", "(------*---)", "(-------*--)", "(--------*-)", "(---------*)"},
 	{"█▒▒▒▒▒▒▒▒▒", "███▒▒▒▒▒▒▒", "█████▒▒▒▒▒", "███████▒▒▒", "██████████"},
+	{"[                    ]", "[=>                  ]", "[===>                ]", "[=====>              ]", "[======>             ]", "[========>           ]", "[==========>         ]", "[============>       ]", "[==============>     ]", "[================>   ]", "[==================> ]", "[===================>]"},
 }
+
+// errInvalidColor is returned when attempting to set an invalid color
+var errInvalidColor = errors.New("invalid color")
 
 // state is a type for the spinner status
 type state uint8
 
 // Spinner struct to hold the provided options
 type Spinner struct {
-	chars      []string                      // chosen character set
-	Delay      time.Duration                 // speed of the spinner
-	Prefix     string                        // Text preppended to the spinner
-	Suffix     string                        // Text appended to the spinner
-	stopChan   chan bool                     // channel used to stop the spinner
+	chars      []string                      // chars holds the chosen character set
+	Delay      time.Duration                 // Delay is the speed of the spinner
+	Prefix     string                        // Prefix is the text preppended to the spinner
+	Suffix     string                        // Suffix is the text appended to the spinner
+	stopChan   chan struct{}                 // stopChan is a channel used to stop the spinner
 	ST         state                         // spinner status
 	w          io.Writer                     // to make testing better
 	color      func(a ...interface{}) string // default color is white
@@ -103,7 +107,7 @@ func validColor(c string) bool {
 func New(c []string, t time.Duration) *Spinner {
 	s := &Spinner{
 		Delay:    t,
-		stopChan: make(chan bool, 1),
+		stopChan: make(chan struct{}, 1),
 		color:    color.New(color.FgWhite).SprintFunc(),
 		w:        color.Output,
 	}
@@ -169,7 +173,7 @@ func (s *Spinner) Color(c string) error {
 			s.color = color.New(color.FgWhite).SprintFunc()
 			s.Restart()
 		default:
-			return errors.New("invalid color")
+			return errInvalidColor
 		}
 	}
 	return nil
@@ -178,7 +182,7 @@ func (s *Spinner) Color(c string) error {
 // Stop stops the spinner
 func (s *Spinner) Stop() {
 	if s.ST == running {
-		s.stopChan <- true
+		s.stopChan <- struct{}{}
 		s.ST = stopped
 		erase(s.w, s.lastOutput)
 	}
@@ -197,12 +201,10 @@ func (s *Spinner) Reverse() {
 	}
 }
 
-// UpdateSpeed is a convenience function to not have to make you
-//create a new instance of the Spinner
+// UpdateSpeed will set the spinner delay to the given value
 func (s *Spinner) UpdateSpeed(delay time.Duration) { s.Delay = delay }
 
-// UpdateCharSet will change the previously select character set to
-// the provided one
+// UpdateCharSet will change the current charSet to the given one
 func (s *Spinner) UpdateCharSet(chars []string) {
 	// so that changes to the slice outside of the spinner don't change it
 	// unexpectedly, create an internal copy
