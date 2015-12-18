@@ -71,17 +71,28 @@ var errInvalidColor = errors.New("invalid color")
 // state is a type for the spinner status
 type state uint8
 
+// Holds a copy of the Spinner config for each new goroutine
+type spinningConfig struct {
+	chars      []string
+	delay      time.Duration
+	prefix     string
+	suffix     string
+	color      func(a ...interface{}) string
+	lastOutput string
+}
+
 // Spinner struct to hold the provided options
 type Spinner struct {
-	chars      []string                      // chars holds the chosen character set
-	Delay      time.Duration                 // Delay is the speed of the spinner
-	Prefix     string                        // Prefix is the text preppended to the spinner
-	Suffix     string                        // Suffix is the text appended to the spinner
-	stopChan   chan struct{}                 // stopChan is a channel used to stop the spinner
-	ST         state                         // spinner status
-	w          io.Writer                     // to make testing better
-	color      func(a ...interface{}) string // default color is white
-	lastOutput string                        // last character(set) written
+	chars          []string                      // chars holds the chosen character set
+	Delay          time.Duration                 // Delay is the speed of the spinner
+	Prefix         string                        // Prefix is the text preppended to the spinner
+	Suffix         string                        // Suffix is the text appended to the spinner
+	stopChan       chan struct{}                 // stopChan is a channel used to stop the spinner
+	ST             state                         // spinner status
+	w              io.Writer                     // to make testing better
+	color          func(a ...interface{}) string // default color is white
+	lastOutput     string                        // last character(set) written
+	lastOutputChan chan string                   // allows main to safely get the last output from the spinner goroutine
 }
 
 //go:generate stringer -type=state
@@ -106,10 +117,11 @@ func validColor(c string) bool {
 // New provides a pointer to an instance of Spinner with the supplied options
 func New(c []string, t time.Duration) *Spinner {
 	s := &Spinner{
-		Delay:    t,
-		stopChan: make(chan struct{}, 1),
-		color:    color.New(color.FgWhite).SprintFunc(),
-		w:        color.Output,
+		Delay:          t,
+		stopChan:       make(chan struct{}, 1),
+		lastOutputChan: make(chan string, 1),
+		color:          color.New(color.FgWhite).SprintFunc(),
+		w:              color.Output,
 	}
 	s.UpdateCharSet(c)
 	return s
@@ -121,22 +133,37 @@ func (s *Spinner) Start() {
 		return
 	}
 	s.ST = running
-	go func() {
+
+	// Create a copy of the Spinner config for use by the spinning
+	// goroutine to avoid races between accesses by main and the goroutine.
+	cfg := &spinningConfig{
+		chars:      make([]string, len(s.chars)),
+		delay:      s.Delay,
+		prefix:     s.Prefix,
+		suffix:     s.Suffix,
+		color:      s.color,
+		lastOutput: s.lastOutput,
+	}
+	copy(cfg.chars, s.chars)
+
+	go func(c *spinningConfig) {
 		for {
-			for i := 0; i < len(s.chars); i++ {
+			for i := 0; i < len(c.chars); i++ {
 				select {
 				case <-s.stopChan:
+					erase(s.w, c.lastOutput)
+					s.lastOutputChan <- c.lastOutput
 					return
 				default:
-					fmt.Fprint(s.w, fmt.Sprintf("%s%s%s ", s.Prefix, s.color(s.chars[i]), s.Suffix))
-					out := fmt.Sprintf("%s%s%s ", s.Prefix, s.chars[i], s.Suffix)
-					s.lastOutput = out
-					time.Sleep(s.Delay)
+					fmt.Fprint(s.w, fmt.Sprintf("%s%s%s ", c.prefix, c.color(c.chars[i]), c.suffix))
+					out := fmt.Sprintf("%s%s%s ", c.prefix, c.chars[i], c.suffix)
+					c.lastOutput = out
+					time.Sleep(c.delay)
 					erase(s.w, out)
 				}
 			}
 		}
-	}()
+	}(cfg)
 }
 
 // erase deletes written characters
@@ -184,7 +211,7 @@ func (s *Spinner) Stop() {
 	if s.ST == running {
 		s.stopChan <- struct{}{}
 		s.ST = stopped
-		erase(s.w, s.lastOutput)
+		s.lastOutput = <-s.lastOutputChan
 	}
 }
 

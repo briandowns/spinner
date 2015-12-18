@@ -16,13 +16,25 @@ import (
 	"bytes"
 	"fmt"
 	"reflect"
+	"sync"
 	"testing"
 	"time"
 )
 
-func withOutput(a []string, d time.Duration) (*Spinner, *bytes.Buffer) {
+type syncBuffer struct {
+	sync.Mutex
+	bytes.Buffer
+}
+
+func (b *syncBuffer) Write(data []byte) (int, error) {
+	b.Lock()
+	defer b.Unlock()
+	return b.Buffer.Write(data)
+}
+
+func withOutput(a []string, d time.Duration) (*Spinner, *syncBuffer) {
 	s := New(a, d)
-	out := new(bytes.Buffer)
+	out := new(syncBuffer)
 	s.w = out
 	return s, out
 }
@@ -60,8 +72,12 @@ func TestStop(t *testing.T) {
 	// because the spinner will print an appropriate number of backspaces before stopping,
 	// let it complete that sleep
 	time.Sleep(100 * time.Millisecond)
+	out.Lock()
 	len1 := out.Len()
+	out.Unlock()
 	time.Sleep(300 * time.Millisecond)
+	out.Lock()
+	defer out.Unlock()
 	len2 := out.Len()
 	if len1 != len2 {
 		t.Errorf("expected equal, got %v != %v", len1, len2)
@@ -72,7 +88,7 @@ func TestStop(t *testing.T) {
 // TestRestart will verify a spinner can be stopped and started again
 func TestRestart(t *testing.T) {
 	s := New(CharSets[4], 50*time.Millisecond)
-	out := new(bytes.Buffer)
+	out := new(syncBuffer)
 	s.w = out
 	s.Start()
 	s.Color("cyan")
@@ -81,6 +97,8 @@ func TestRestart(t *testing.T) {
 	time.Sleep(200 * time.Millisecond)
 	s.Stop()
 	time.Sleep(50 * time.Millisecond)
+	out.Lock()
+	defer out.Unlock()
 	result := out.Bytes()
 	first := result[:len(result)/2]
 	secnd := result[len(result)/2:]
