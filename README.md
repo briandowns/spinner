@@ -66,6 +66,7 @@ go get github.com/briandowns/spinner
 * Prefix or append text
 * Change spinner color
 * Get spinner status
+* Chain, pipe, redirect output
 
 ## Examples
 
