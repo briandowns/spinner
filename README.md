@@ -78,7 +78,7 @@ import (
 )
 
 func main() {
-	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond) // Build our new spinner
+	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)  // Build our new spinner
 	s.Start()                                                    // Start the spinner
 	time.Sleep(4 * time.Second)                                  // Run for some time to simulate work
 	s.Stop()
@@ -145,4 +145,29 @@ s := spinner.New(setOfDigits, 100*time.Millisecond)
 
 ```Go
 fmt.Println(s.ST)
+```
+
+## Unix pipe and redirect
+
+Feature provided by [dekz](https://github.com/dekz)
+
+Setting the Spinner Writer to Stderr helps show progress to the user, with the enhancement to chain, pipe or redirect the output.
+
+```go
+s := spinner.New(spinner.CharSets[11], 100*time.Millisecond)
+s.Suffix = " Encrypting data..."
+s.Writer = os.Stderr
+s.Start()
+// Encrypt the data into ciphertext
+fmt.Println(os.Stdout, ciphertext)
+```
+
+```sh
+> myprog encrypt "Secret text" > encrypted.txt
+⣯ Encrypting data...
+```
+
+```sh
+> cat encrypted.txt
+1243hjkbas23i9ah27sj39jghv237n2oa93hg83
 ```
