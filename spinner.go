@@ -89,7 +89,7 @@ type Spinner struct {
 	Suffix         string                        // Suffix is the text appended to the spinner
 	stopChan       chan struct{}                 // stopChan is a channel used to stop the spinner
 	ST             state                         // spinner status
-	w              io.Writer                     // to make testing better
+	Writer         io.Writer                     // to make testing better
 	color          func(a ...interface{}) string // default color is white
 	lastOutput     string                        // last character(set) written
 	lastOutputChan chan string                   // allows main to safely get the last output from the spinner goroutine
@@ -121,7 +121,7 @@ func New(c []string, t time.Duration) *Spinner {
 		stopChan:       make(chan struct{}, 1),
 		lastOutputChan: make(chan string, 1),
 		color:          color.New(color.FgWhite).SprintFunc(),
-		w:              color.Output,
+		Writer:         color.Output,
 	}
 	s.UpdateCharSet(c)
 	return s
@@ -151,15 +151,15 @@ func (s *Spinner) Start() {
 			for i := 0; i < len(c.chars); i++ {
 				select {
 				case <-s.stopChan:
-					erase(s.w, c.lastOutput)
+					erase(s.Writer, c.lastOutput)
 					s.lastOutputChan <- c.lastOutput
 					return
 				default:
-					fmt.Fprint(s.w, fmt.Sprintf("%s%s%s ", c.prefix, c.color(c.chars[i]), c.suffix))
+					fmt.Fprint(s.Writer, fmt.Sprintf("%s%s%s ", c.prefix, c.color(c.chars[i]), c.suffix))
 					out := fmt.Sprintf("%s%s%s ", c.prefix, c.chars[i], c.suffix)
 					c.lastOutput = out
 					time.Sleep(c.delay)
-					erase(s.w, out)
+					erase(s.Writer, out)
 				}
 			}
 		}
