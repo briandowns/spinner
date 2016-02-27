@@ -35,7 +35,7 @@ func (b *syncBuffer) Write(data []byte) (int, error) {
 func withOutput(a []string, d time.Duration) (*Spinner, *syncBuffer) {
 	s := New(a, d)
 	out := new(syncBuffer)
-	s.w = out
+	s.Writer = out
 	return s, out
 }
 
@@ -89,7 +89,7 @@ func TestStop(t *testing.T) {
 func TestRestart(t *testing.T) {
 	s := New(CharSets[4], 50*time.Millisecond)
 	out := new(syncBuffer)
-	s.w = out
+	s.Writer = out
 	s.Start()
 	s.Color("cyan")
 	time.Sleep(200 * time.Millisecond)
