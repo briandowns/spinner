@@ -67,6 +67,7 @@ go get github.com/briandowns/spinner
 * Change spinner color
 * Get spinner status
 * Chain, pipe, redirect output
+* Output final string on spinner/indicator completion
 
 ## Examples
 
@@ -150,7 +151,7 @@ fmt.Println(s.ST)
 
 ## Unix pipe and redirect
 
-Feature provided by [dekz](https://github.com/dekz)
+Feature suggested and write up by [dekz](https://github.com/dekz)
 
 Setting the Spinner Writer to Stderr helps show progress to the user, with the enhancement to chain, pipe or redirect the output.
 
@@ -171,4 +172,23 @@ fmt.Println(os.Stdout, ciphertext)
 ```sh
 > cat encrypted.txt
 1243hjkbas23i9ah27sj39jghv237n2oa93hg83
+```
+
+## Final String Output
+
+Add additional output when the spinner/indicator has been completed. The "final" output string can be multi-lined and will be written to wherever the `io.Writer` has been configured for.
+
+```Go
+s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)
+s.Finally = "Complete!\nNew line!\nAnother one!\n"
+s.Start()                 
+time.Sleep(4 * time.Second)
+s.Stop()                   
+```
+
+Output
+```sh
+Complete!
+New line!
+Another one!
 ```
