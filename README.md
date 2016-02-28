@@ -176,7 +176,7 @@ fmt.Println(os.Stdout, ciphertext)
 
 ## Final String Output
 
-Add additional output when the spinner/indicator has been completed. The "final" output string can be multi-lined and will be written to wherever the `io.Writer` has been configured for.
+Add additional output when the spinner/indicator has completed. The "final" output string can be multi-lined and will be written to wherever the `io.Writer` has been configured for.
 
 ```Go
 s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)
