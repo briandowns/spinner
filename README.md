@@ -180,7 +180,7 @@ Add additional output when the spinner/indicator has been completed. The "final"
 
 ```Go
 s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)
-s.Finally = "Complete!\nNew line!\nAnother one!\n"
+s.FinalMSG = "Complete!\nNew line!\nAnother one!\n"
 s.Start()                 
 time.Sleep(4 * time.Second)
 s.Stop()                   
