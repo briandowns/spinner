@@ -93,7 +93,7 @@ type Spinner struct {
 	color          func(a ...interface{}) string // default color is white
 	lastOutput     string                        // last character(set) written
 	lastOutputChan chan string                   // allows main to safely get the last output from the spinner goroutine
-	Finally        string                        // string displayed after Stop() is called
+	FinalMSG       string                        // string displayed after Stop() is called
 }
 
 //go:generate stringer -type=state
@@ -213,8 +213,8 @@ func (s *Spinner) Stop() {
 		s.stopChan <- struct{}{}
 		s.ST = stopped
 		s.lastOutput = <-s.lastOutputChan
-		if s.Finally != "" {
-			fmt.Fprintf(s.Writer, s.Finally)
+		if s.FinalMSG != "" {
+			fmt.Fprintf(s.Writer, s.FinalMSG)
 		}
 	}
 }
