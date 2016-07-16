@@ -29,7 +29,7 @@ type syncBuffer struct {
 	bytes.Buffer
 }
 
-// Write 
+// Write
 func (b *syncBuffer) Write(data []byte) (int, error) {
 	b.Lock()
 	defer b.Unlock()
@@ -174,4 +174,23 @@ func TestBackspace(t *testing.T) {
 	fmt.Print("This is on the same line as the spinner: ")
 	time.Sleep(baseWait * time.Second)
 	s.Stop()
+}
+
+/*
+Benchmarks
+*/
+
+// BenchmarkNew runs a benchmark for the New() function
+func BenchmarkNew(b *testing.B) {
+	for n := 0; n < b.N; n++ {
+		New(CharSets[1], 1*time.Second)
+	}
+}
+
+func BenchmarkNewStartStop(b *testing.B) {
+	for n := 0; n < b.N; n++ {
+		s := New(CharSets[1], 1*time.Second)
+		s.Start()
+		s.Stop()
+	}
 }
