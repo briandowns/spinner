@@ -50,9 +50,9 @@ type Spinner struct {
 	FinalMSG   string                        // string displayed after Stop() is called
 	lastOutput string                        // last character(set) written
 	color      func(a ...interface{}) string // default color is white
-	active     bool                          // active holds the state of the spinner
 	lock       *sync.RWMutex                 // Lock useed for
 	Writer     io.Writer                     // to make testing better, exported so users have access
+	active     bool                          // active holds the state of the spinner
 	stopChan   chan struct{}                 // stopChan is a channel used to stop the indicator
 }
 
@@ -62,9 +62,9 @@ func New(cs []string, d time.Duration) *Spinner {
 		Delay:    d,
 		chars:    cs,
 		color:    color.New(color.FgWhite).SprintFunc(),
-		active:   false,
 		lock:     &sync.RWMutex{},
 		Writer:   color.Output,
+		active:   false,
 		stopChan: make(chan struct{}, 1),
 	}
 }
