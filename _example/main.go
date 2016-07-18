@@ -4,9 +4,10 @@ package main
 // options
 
 import (
+	"log"
 	"time"
 
-	"github.com/briandowns/rewrite_spinner"
+	"github.com/briandowns/spinner"
 )
 
 func main() {
@@ -31,71 +32,71 @@ func main() {
 	}
 
 	s.Start()
-	
+
 	time.Sleep(4 * time.Second) // Run for some time to simulate work
-	
+
 	if err := s.Color("red"); err != nil {
 		log.Fatalln(err)
 	}
-	
+
 	s.UpdateCharSet(spinner.CharSets[20])
-	
+
 	s.Reverse()
-	
+
 	s.Restart()
-	
+
 	time.Sleep(4 * time.Second) // Run for some time to simulate work
-	
+
 	if err := s.Color("blue"); err != nil {
 		log.Fatalln(err)
 	}
-	
+
 	s.UpdateCharSet(spinner.CharSets[3])
-	
+
 	s.Restart()
-	
+
 	time.Sleep(4 * time.Second) // Run for some time to simulate work
-	
+
 	if err := s.Color("cyan"); err != nil {
 		log.Fatalln(err)
 	}
-	
+
 	s.UpdateCharSet(spinner.CharSets[28])
-	
+
 	s.Reverse()
-	
+
 	s.Restart()
-	
+
 	time.Sleep(4 * time.Second) // Run for some time to simulate work
-	
+
 	if err := s.Color("green"); err != nil {
 		log.Fatalln(err)
 	}
-	
+
 	s.UpdateCharSet(spinner.CharSets[25])
-	
+
 	s.Restart()
-	
+
 	time.Sleep(4 * time.Second) // Run for some time to simulate work
-	
+
 	if err := s.Color("magenta"); err != nil {
 		log.Fatalln(err)
 	}
-	
+
 	s.UpdateCharSet(spinner.CharSets[32])
-	
+
 	s.Restart()
-	
+
 	time.Sleep(4 * time.Second) // Run for some time to simulate work
-	
+
 	if err := s.Color("white"); err != nil {
 		log.Fatalln(err)
 	}
-	
+
 	s.FinalMSG = "Complete!\nNew line!\nAnother one!\n"
-	
+
 	s.UpdateCharSet(spinner.CharSets[31])
-	
+
 	s.Restart()
 
 	time.Sleep(4 * time.Second) // Run for some time to simulate work
