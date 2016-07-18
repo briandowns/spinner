@@ -81,6 +81,8 @@ func (s *Spinner) Start() {
 			for i := 0; i < len(s.chars); i++ {
 				select {
 				case <-s.stopChan:
+					s.erase(s.lastOutput)
+					fmt.Fprint(s.Writer, s.lastOutput)
 					return
 				default:
 					fmt.Fprint(s.Writer, fmt.Sprintf("%s%s%s ", s.Prefix, s.color(s.chars[i]), s.Suffix))
