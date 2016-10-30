@@ -188,7 +188,7 @@ func (s *Spinner) erase(a string) {
 func GenerateNumberSequence(length int) []string {
 	numSeq := make([]string, length)
 	for i := 0; i < length; i++ {
-		numSeq = append(numSeq, strconv.Itoa(i))
+		numSeq[i] = strconv.Itoa(i)
 	}
 	return numSeq
 }

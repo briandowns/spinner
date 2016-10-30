@@ -157,6 +157,8 @@ func TestGenerateNumberSequence(t *testing.T) {
 	if reflect.TypeOf(seq).String() != "[]string" {
 		t.Error("received incorrect type in return from GenerateNumberSequence")
 	}
+	t.Log("In: ", elementCount)
+	t.Log("Out: ", len(seq))
 	if len(seq) != elementCount {
 		t.Error("number of elements in slice doesn't match expected count")
 	}
