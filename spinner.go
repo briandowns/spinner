@@ -43,29 +43,31 @@ func validColor(c string) bool {
 
 // Spinner struct to hold the provided options
 type Spinner struct {
-	Delay      time.Duration                 // Delay is the speed of the indicator
-	chars      []string                      // chars holds the chosen character set
-	Prefix     string                        // Prefix is the text preppended to the indicator
-	Suffix     string                        // Suffix is the text appended to the indicator
-	FinalMSG   string                        // string displayed after Stop() is called
-	lastOutput string                        // last character(set) written
-	color      func(a ...interface{}) string // default color is white
-	lock       *sync.RWMutex                 // Lock useed for
-	Writer     io.Writer                     // to make testing better, exported so users have access
-	active     bool                          // active holds the state of the spinner
-	stopChan   chan struct{}                 // stopChan is a channel used to stop the indicator
+	Delay          time.Duration                 // Delay is the speed of the indicator
+	chars          []string                      // chars holds the chosen character set
+	Prefix         string                        // Prefix is the text preppended to the indicator
+	Suffix         string                        // Suffix is the text appended to the indicator
+	FinalMSG       string                        // string displayed after Stop() is called
+	lastOutput     string                        // last character(set) written
+	color          func(a ...interface{}) string // default color is white
+	lock           *sync.RWMutex                 // Lock useed for
+	Writer         io.Writer                     // to make testing better, exported so users have access
+	active         bool                          // active holds the state of the spinner
+	stopChan       chan struct{}                 // stopChan is a channel used to stop the indicator
+	lastOutputChan chan string                   // allows main to safely get the last output from the spinner goroutine
 }
 
 // New provides a pointer to an instance of Spinner with the supplied options
 func New(cs []string, d time.Duration) *Spinner {
 	return &Spinner{
-		Delay:    d,
-		chars:    cs,
-		color:    color.New(color.FgWhite).SprintFunc(),
-		lock:     &sync.RWMutex{},
-		Writer:   color.Output,
-		active:   false,
-		stopChan: make(chan struct{}, 1),
+		Delay:          d,
+		chars:          cs,
+		color:          color.New(color.FgWhite).SprintFunc(),
+		lock:           &sync.RWMutex{},
+		Writer:         color.Output,
+		active:         false,
+		stopChan:       make(chan struct{}, 1),
+		lastOutputChan: make(chan string, 1),
 	}
 }
 
@@ -81,6 +83,7 @@ func (s *Spinner) Start() {
 			for i := 0; i < len(s.chars); i++ {
 				select {
 				case <-s.stopChan:
+					s.erase(<-s.lastOutputChan)
 					return
 				default:
 					fmt.Fprint(s.Writer, fmt.Sprintf("%s%s%s ", s.Prefix, s.color(s.chars[i]), s.Suffix))
@@ -101,11 +104,11 @@ func (s *Spinner) Stop() {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 	if s.active {
-		s.stopChan <- struct{}{}
 		s.active = false
 		if s.FinalMSG != "" {
 			fmt.Fprintf(s.Writer, s.FinalMSG)
 		}
+		s.stopChan <- struct{}{}
 	}
 }
 
@@ -173,8 +176,8 @@ func (s *Spinner) UpdateCharSet(cs []string) {
 // erase deletes written characters
 func (s *Spinner) erase(a string) {
 	n := utf8.RuneCountInString(a)
-	s.lock.RLock()
-	defer s.lock.RUnlock()
+	s.lock.Lock()
+	defer s.lock.Unlock()
 	for i := 0; i < n; i++ {
 		fmt.Fprintf(s.Writer, "\b")
 	}
@@ -183,9 +186,9 @@ func (s *Spinner) erase(a string) {
 // GenerateNumberSequence will generate a slice of integers at the
 // provided length and convert them each to a string
 func GenerateNumberSequence(length int) []string {
-	var numSeq []string
+	numSeq := make([]string, length)
 	for i := 0; i < length; i++ {
-		numSeq = append(numSeq, strconv.Itoa(i))
+		numSeq[i] = strconv.Itoa(i)
 	}
 	return numSeq
 }
