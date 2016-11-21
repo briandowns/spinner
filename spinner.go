@@ -43,31 +43,29 @@ func validColor(c string) bool {
 
 // Spinner struct to hold the provided options
 type Spinner struct {
-	Delay          time.Duration                 // Delay is the speed of the indicator
-	chars          []string                      // chars holds the chosen character set
-	Prefix         string                        // Prefix is the text preppended to the indicator
-	Suffix         string                        // Suffix is the text appended to the indicator
-	FinalMSG       string                        // string displayed after Stop() is called
-	lastOutput     string                        // last character(set) written
-	color          func(a ...interface{}) string // default color is white
-	lock           *sync.RWMutex                 // Lock useed for
-	Writer         io.Writer                     // to make testing better, exported so users have access
-	active         bool                          // active holds the state of the spinner
-	stopChan       chan struct{}                 // stopChan is a channel used to stop the indicator
-	lastOutputChan chan string                   // allows main to safely get the last output from the spinner goroutine
+	Delay      time.Duration                 // Delay is the speed of the indicator
+	chars      []string                      // chars holds the chosen character set
+	Prefix     string                        // Prefix is the text preppended to the indicator
+	Suffix     string                        // Suffix is the text appended to the indicator
+	FinalMSG   string                        // string displayed after Stop() is called
+	lastOutput string                        // last character(set) written
+	color      func(a ...interface{}) string // default color is white
+	lock       *sync.RWMutex                 //
+	Writer     io.Writer                     // to make testing better, exported so users have access
+	active     bool                          // active holds the state of the spinner
+	stopChan   chan struct{}                 // stopChan is a channel used to stop the indicator
 }
 
 // New provides a pointer to an instance of Spinner with the supplied options
 func New(cs []string, d time.Duration) *Spinner {
 	return &Spinner{
-		Delay:          d,
-		chars:          cs,
-		color:          color.New(color.FgWhite).SprintFunc(),
-		lock:           &sync.RWMutex{},
-		Writer:         color.Output,
-		active:         false,
-		stopChan:       make(chan struct{}, 1),
-		lastOutputChan: make(chan string, 1),
+		Delay:    d,
+		chars:    cs,
+		color:    color.New(color.FgWhite).SprintFunc(),
+		lock:     &sync.RWMutex{},
+		Writer:   color.Output,
+		active:   false,
+		stopChan: make(chan struct{}, 1),
 	}
 }
 
@@ -83,16 +81,18 @@ func (s *Spinner) Start() {
 			for i := 0; i < len(s.chars); i++ {
 				select {
 				case <-s.stopChan:
-					s.erase(<-s.lastOutputChan)
 					return
 				default:
-					fmt.Fprint(s.Writer, fmt.Sprintf("%s%s%s ", s.Prefix, s.color(s.chars[i]), s.Suffix))
-					out := fmt.Sprintf("%s%s%s ", s.Prefix, s.chars[i], s.Suffix)
-					s.lastOutput = out
-					s.lock.RLock()
-					time.Sleep(s.Delay)
-					s.lock.RUnlock()
-					s.erase(out)
+					s.lock.Lock()
+					s.erase()
+					outColor := fmt.Sprintf("%s%s%s ", s.Prefix, s.color(s.chars[i]), s.Suffix)
+					outPlain := fmt.Sprintf("%s%s%s ", s.Prefix, s.chars[i], s.Suffix)
+					fmt.Fprint(s.Writer, outColor)
+					s.lastOutput = outPlain
+					delay := s.Delay
+					s.lock.Unlock()
+
+					time.Sleep(delay)
 				}
 			}
 		}
@@ -105,6 +105,7 @@ func (s *Spinner) Stop() {
 	defer s.lock.Unlock()
 	if s.active {
 		s.active = false
+		s.erase()
 		if s.FinalMSG != "" {
 			fmt.Fprintf(s.Writer, s.FinalMSG)
 		}
@@ -174,13 +175,14 @@ func (s *Spinner) UpdateCharSet(cs []string) {
 }
 
 // erase deletes written characters
-func (s *Spinner) erase(a string) {
-	n := utf8.RuneCountInString(a)
-	s.lock.Lock()
-	defer s.lock.Unlock()
+//
+// Caller must already hold s.lock.
+func (s *Spinner) erase() {
+	n := utf8.RuneCountInString(s.lastOutput)
 	for i := 0; i < n; i++ {
 		fmt.Fprintf(s.Writer, "\b")
 	}
+	s.lastOutput = ""
 }
 
 // GenerateNumberSequence will generate a slice of integers at the
