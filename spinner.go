@@ -179,8 +179,10 @@ func (s *Spinner) UpdateCharSet(cs []string) {
 // Caller must already hold s.lock.
 func (s *Spinner) erase() {
 	n := utf8.RuneCountInString(s.lastOutput)
-	for i := 0; i < n; i++ {
-		fmt.Fprintf(s.Writer, "\b")
+	for _, c := range []string{"\b", " ", "\b"} {
+		for i := 0; i < n; i++ {
+			fmt.Fprintf(s.Writer, c)
+		}
 	}
 	s.lastOutput = ""
 }
