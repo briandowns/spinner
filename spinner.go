@@ -29,16 +29,23 @@ import (
 var errInvalidColor = errors.New("invalid color")
 
 // validColors holds an array of the only colors allowed
-var validColors = []string{"red", "green", "yellow", "blue", "magenta", "cyan", "white"}
+var validColors = map[string]bool{
+	"red":     true,
+	"green":   true,
+	"yellow":  true,
+	"blue":    true,
+	"magenta": true,
+	"cyan":    true,
+	"white":   true,
+}
 
 // validColor will make sure the given color is actually allowed
 func validColor(c string) bool {
-	for _, i := range validColors {
-		if c == i {
-			return true
-		}
+	valid := false
+	if validColors[c] {
+		valid = true
 	}
-	return false
+	return valid
 }
 
 // Spinner struct to hold the provided options
