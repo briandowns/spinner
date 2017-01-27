@@ -39,6 +39,17 @@ var validColors = map[string]bool{
 	"white":   true,
 }
 
+// returns a valid color's foreground text color attribute
+var colorAttributeMap = map[string]color.Attribute{
+	"red":     color.FgRed,
+	"green":   color.FgGreen,
+	"yellow":  color.FgYellow,
+	"blue":    color.FgBlue,
+	"magenta": color.FgMagenta,
+	"cyan":    color.FgCyan,
+	"white":   color.FgWhite,
+}
+
 // validColor will make sure the given color is actually allowed
 func validColor(c string) bool {
 	valid := false
@@ -137,33 +148,11 @@ func (s *Spinner) Reverse() {
 
 // Color will set the struct field for the given color to be used
 func (s *Spinner) Color(c string) error {
-	if validColor(c) {
-		switch c {
-		case "red":
-			s.color = color.New(color.FgRed).SprintFunc()
-			s.Restart()
-		case "yellow":
-			s.color = color.New(color.FgYellow).SprintFunc()
-			s.Restart()
-		case "green":
-			s.color = color.New(color.FgGreen).SprintFunc()
-			s.Restart()
-		case "magenta":
-			s.color = color.New(color.FgMagenta).SprintFunc()
-			s.Restart()
-		case "blue":
-			s.color = color.New(color.FgBlue).SprintFunc()
-			s.Restart()
-		case "cyan":
-			s.color = color.New(color.FgCyan).SprintFunc()
-			s.Restart()
-		case "white":
-			s.color = color.New(color.FgWhite).SprintFunc()
-			s.Restart()
-		default:
-			return errInvalidColor
-		}
+	if !validColor(c) {
+		return errInvalidColor
 	}
+	s.color = color.New(colorAttributeMap[c]).SprintFunc()
+	s.Restart()
 	return nil
 }
 
