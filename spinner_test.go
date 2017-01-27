@@ -190,7 +190,7 @@ func TestColorError(t *testing.T) {
 		t.Error("Color function did not return an error when given an invalid color.")
 	}
 
-	if s.Color(validColorName) == errInvalidColor {
+	if s.Color(validColorName) != nil {
 		t.Error("Color function returned an error when given a valid color.")
 	}
 }
