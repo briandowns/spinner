@@ -148,14 +148,12 @@ func (s *Spinner) Reverse() {
 
 // Color will set the struct field for the given color to be used
 func (s *Spinner) Color(c string) error {
-	var colorError error
-	if validColor(c) {
-		s.color = color.New(colorAttributeMap[c]).SprintFunc()
-		s.Restart()
-	} else {
-		colorError = errInvalidColor
+	if !validColor(c) {
+		return errInvalidColor
 	}
-	return colorError
+	s.color = color.New(colorAttributeMap[c]).SprintFunc()
+	s.Restart()
+	return nil
 }
 
 // UpdateSpeed will set the indicator delay to the given value
