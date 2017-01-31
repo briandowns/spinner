@@ -20,7 +20,6 @@ import (
 	"strconv"
 	"sync"
 	"time"
-	"unicode/utf8"
 
 	"github.com/fatih/color"
 )
@@ -174,12 +173,7 @@ func (s *Spinner) UpdateCharSet(cs []string) {
 //
 // Caller must already hold s.lock.
 func (s *Spinner) erase() {
-	n := utf8.RuneCountInString(s.lastOutput)
-	for _, c := range []string{"\b", " ", "\b"} {
-		for i := 0; i < n; i++ {
-			fmt.Fprintf(s.Writer, c)
-		}
-	}
+	fmt.Fprintf(s.Writer, "\033[2K\r")
 	s.lastOutput = ""
 }
 
