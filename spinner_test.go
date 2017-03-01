@@ -46,9 +46,12 @@ func withOutput(a []string, d time.Duration) (*Spinner, *syncBuffer) {
 
 // TestNew verifies that the returned instance is of the proper type
 func TestNew(t *testing.T) {
-	s := New(CharSets[1], 1*time.Second)
-	if reflect.TypeOf(s).String() != "*spinner.Spinner" {
-		t.Error("New returned incorrect type")
+	for i := 0; i < len(CharSets); i++ {
+		s := New(CharSets[i], 1*time.Second)
+		if reflect.TypeOf(s).String() != "*spinner.Spinner" {
+			fmt.Println("boom",i)
+			t.Error("New returned incorrect type kind=%d",i)
+		}
 	}
 }
 
