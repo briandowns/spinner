@@ -1,5 +1,10 @@
 package spinner
 
+const (
+	clockOneOClock = '\U0001F550'
+	clockOneThirty = '\U0001F55C'
+)
+
 // CharSets contains the available character sets
 var CharSets = map[int][]string{
 	0:  {"←", "↖", "↑", "↗", "→", "↘", "↓", "↙"},
@@ -40,3 +45,11 @@ var CharSets = map[int][]string{
 	35: {"█▒▒▒▒▒▒▒▒▒", "███▒▒▒▒▒▒▒", "█████▒▒▒▒▒", "███████▒▒▒", "██████████"},
 	36: {"[                    ]", "[=>                  ]", "[===>                ]", "[=====>              ]", "[======>             ]", "[========>           ]", "[==========>         ]", "[============>       ]", "[==============>     ]", "[================>   ]", "[==================> ]", "[===================>]"},
 }
+
+func init() {
+	for i := rune(0); i < 12; i++ {
+		CharSets[37] = append(CharSets[37],string([]rune{clockOneOClock+i}))
+		CharSets[38] = append(CharSets[38],string([]rune{clockOneOClock+i}), string([]rune{clockOneThirty+i}))
+	}
+}
+
