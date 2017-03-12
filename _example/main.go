@@ -103,5 +103,14 @@ func main() {
 
 	s.Stop() // Stop the spinner
 
+	s.Prefix = "Earth! "
+	s.UpdateCharSet(spinner.CharSets[39])
+
+	s.Restart()
+
+	time.Sleep(4 * time.Second) // Run for some time to simulate work
+
+	s.Stop() // Stop the spinner
+
 	println("")
 }
