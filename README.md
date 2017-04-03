@@ -16,6 +16,7 @@ go get github.com/briandowns/spinner
 
 ## Available Character Sets
 (Numbered by their slice index)
+
 index | character set
 ------|---------------
 0 | ```←↖↑↗→↘↓↙```
