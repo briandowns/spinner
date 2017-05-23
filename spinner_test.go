@@ -49,7 +49,7 @@ func TestNew(t *testing.T) {
 	for i := 0; i < len(CharSets); i++ {
 		s := New(CharSets[i], 1*time.Second)
 		if reflect.TypeOf(s).String() != "*spinner.Spinner" {
-			t.Error("New returned incorrect type kind=%d",i)
+			t.Errorf("New returned incorrect type kind=%d",i)
 		}
 	}
 }
