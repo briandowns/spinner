@@ -1,8 +1,5 @@
+// Example application that uses all of the available API options.
 package main
-
-// Example application that uses all of the available API
-// options
-
 import (
 	"log"
 	"time"
