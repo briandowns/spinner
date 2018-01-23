@@ -87,6 +87,11 @@ func New(cs []string, d time.Duration) *Spinner {
 	}
 }
 
+// Active will return whether or not the spinner is currently active
+func (s *Spinner) Active() bool {
+	return s.active
+}
+
 // Start will start the indicator
 func (s *Spinner) Start() {
 	if s.active {

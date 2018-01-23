@@ -64,6 +64,22 @@ func TestStart(t *testing.T) {
 	time.Sleep(100 * time.Millisecond)
 }
 
+// TestActive will verify we can tell when a spinner is running
+func TestActive(t *testing.T) {
+	s := New(CharSets[1], 100*time.Millisecond)
+	if s.Active() {
+		t.Error("expected a new spinner to not be active")
+	}
+	s.Start()
+	if !s.Active() {
+		t.Error("expected a started spinner to be active")
+	}
+	s.Stop()
+	if s.Active() {
+		t.Error("expected a stopped spinner to be active")
+	}
+}
+
 // TestStop will verify a spinner can be stopped
 func TestStop(t *testing.T) {
 	p, out := withOutput(CharSets[14], 100*time.Millisecond)

@@ -155,7 +155,7 @@ s := spinner.New(setOfDigits, 100*time.Millisecond)
 ## Get spinner status
 
 ```Go
-fmt.Println(s.ST)
+fmt.Println(s.Active())
 ```
 
 ## Unix pipe and redirect
