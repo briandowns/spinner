@@ -14,6 +14,7 @@
 package spinner
 
 import (
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
@@ -21,7 +22,6 @@ import (
 	"sync"
 	"time"
 	"unicode/utf8"
-	"encoding/hex"
 
 	"github.com/fatih/color"
 )
@@ -299,7 +299,12 @@ func (s *Spinner) UpdateCharSet(cs []string) {
 func (s *Spinner) erase() {
 	n := utf8.RuneCountInString(s.lastOutput)
 	del, _ := hex.DecodeString("7f")
-	for _, c := range []string{"\b", string(del), "\b"} {
+	for _, c := range []string{
+		"\b",
+		string(del),
+		"\b",
+		"\033[K", // for macOS Terminal
+	} {
 		for i := 0; i < n; i++ {
 			fmt.Fprintf(s.Writer, c)
 		}
