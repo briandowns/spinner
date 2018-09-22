@@ -252,9 +252,6 @@ func (s *Spinner) Stop() {
 		if s.FinalMSG != "" {
 			fmt.Fprintf(s.Writer, s.FinalMSG)
 		}
-		if runtime.GOOS == "windows" {
-			fmt.Fprintf(s.Writer, "\r")
-		}
 		s.stopChan <- struct{}{}
 	}
 }
