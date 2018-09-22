@@ -218,7 +218,7 @@ func (s *Spinner) Start() {
 					return
 				default:
 					s.lock.Lock()
-					// s.erase()
+					s.erase()
 					var outColor string
 					if runtime.GOOS == "windows" {
 						if s.Writer == os.Stderr {
@@ -251,6 +251,9 @@ func (s *Spinner) Stop() {
 		s.erase()
 		if s.FinalMSG != "" {
 			fmt.Fprintf(s.Writer, s.FinalMSG)
+		}
+		if runtime.GOOS == "windows" {
+			fmt.Fprintf(s.Writer, "\r")
 		}
 		s.stopChan <- struct{}{}
 	}
@@ -309,8 +312,17 @@ func (s *Spinner) UpdateCharSet(cs []string) {
 // Caller must already hold s.lock.
 func (s *Spinner) erase() {
 	n := utf8.RuneCountInString(s.lastOutput)
+	if runtime.GOOS == "windows" {
+		clearString := "\r"
+		for i := 0; i < n; i++ {
+			clearString += " "
+		}
+		fmt.Fprintf(s.Writer, clearString)
+		return
+	}
 	del, _ := hex.DecodeString("7f")
 	for _, c := range []string{
+		"\r",
 		"\b",
 		string(del),
 		"\b",
