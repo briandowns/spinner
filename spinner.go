@@ -319,7 +319,6 @@ func (s *Spinner) erase() {
 	}
 	del, _ := hex.DecodeString("7f")
 	for _, c := range []string{
-		"\r",
 		"\b",
 		string(del),
 		"\b",
