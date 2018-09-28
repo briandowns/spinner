@@ -18,6 +18,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"os"
+	"runtime"
 	"strconv"
 	"sync"
 	"time"
@@ -217,7 +219,16 @@ func (s *Spinner) Start() {
 				default:
 					s.lock.Lock()
 					s.erase()
-					outColor := fmt.Sprintf("%s%s%s ", s.Prefix, s.color(s.chars[i]), s.Suffix)
+					var outColor string
+					if runtime.GOOS == "windows" {
+						if s.Writer == os.Stderr {
+							outColor = fmt.Sprintf("\r%s%s%s ", s.Prefix, s.chars[i], s.Suffix)
+						} else {
+							outColor = fmt.Sprintf("\r%s%s%s ", s.Prefix, s.color(s.chars[i]), s.Suffix)
+						}
+					} else {
+						outColor = fmt.Sprintf("%s%s%s ", s.Prefix, s.color(s.chars[i]), s.Suffix)
+					}
 					outPlain := fmt.Sprintf("%s%s%s ", s.Prefix, s.chars[i], s.Suffix)
 					fmt.Fprint(s.Writer, outColor)
 					s.lastOutput = outPlain
@@ -298,6 +309,14 @@ func (s *Spinner) UpdateCharSet(cs []string) {
 // Caller must already hold s.lock.
 func (s *Spinner) erase() {
 	n := utf8.RuneCountInString(s.lastOutput)
+	if runtime.GOOS == "windows" {
+		clearString := "\r"
+		for i := 0; i < n; i++ {
+			clearString += " "
+		}
+		fmt.Fprintf(s.Writer, clearString)
+		return
+	}
 	del, _ := hex.DecodeString("7f")
 	for _, c := range []string{
 		"\b",
