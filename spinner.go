@@ -262,9 +262,9 @@ func (s *Spinner) Start() {
 							outColor = fmt.Sprintf("\r%s%s%s ", s.Prefix, s.color(s.chars[i]), s.Suffix)
 						}
 					} else {
-						outColor = fmt.Sprintf("%s%s%s ", s.Prefix, s.color(s.chars[i]), s.Suffix)
+						outColor = fmt.Sprintf("\r%s%s%s ", s.Prefix, s.color(s.chars[i]), s.Suffix)
 					}
-					outPlain := fmt.Sprintf("%s%s%s ", s.Prefix, s.chars[i], s.Suffix)
+					outPlain := fmt.Sprintf("\r%s%s%s ", s.Prefix, s.chars[i], s.Suffix)
 					fmt.Fprint(s.Writer, outColor)
 					s.lastOutput = outPlain
 					delay := s.Delay
