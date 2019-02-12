@@ -320,7 +320,9 @@ func (s *Spinner) Color(colors ...string) error {
 		colorAttributes[index] = colorAttributeMap[c]
 	}
 
+	s.lock.Lock()
 	s.color = color.New(colorAttributes...).SprintFunc()
+	s.lock.Unlock()
 	s.Restart()
 	return nil
 }
