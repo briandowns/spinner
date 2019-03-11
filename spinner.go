@@ -187,7 +187,7 @@ type Spinner struct {
 
 // New provides a pointer to an instance of Spinner with the supplied options
 func New(cs []string, d time.Duration, options ...Option) *Spinner {
-	s:= &Spinner{
+	s := &Spinner{
 		Delay:    d,
 		chars:    cs,
 		color:    color.New(color.FgWhite).SprintFunc(),
@@ -204,26 +204,34 @@ func New(cs []string, d time.Duration, options ...Option) *Spinner {
 	return s
 }
 
+// Option is a function that takes a spinner and applies
+// a given configuration
 type Option func(*Spinner)
 
+// Options contains fields to configure the spinner
 type Options struct {
-	Color string
-	Suffix string
+	Color    string
+	Suffix   string
 	FinalMSG string
 }
 
+// WithColor adds the given color to the spinner
 func WithColor(color string) Option {
 	return func(s *Spinner) {
 		s.Color(color)
 	}
 }
 
+// WithSuffix adds the given string to the spinner
+// as the suffix
 func WithSuffix(suffix string) Option {
 	return func(s *Spinner) {
 		s.Suffix = suffix
 	}
 }
 
+// WithFinalMSG adds the given string ot the spinner
+// as the final message to be written
 func WithFinalMSG(finalMsg string) Option {
 	return func(s *Spinner) {
 		s.FinalMSG = finalMsg
@@ -366,6 +374,16 @@ func (s *Spinner) erase() {
 		}
 	}
 	s.lastOutput = ""
+}
+
+// Lock allows for manual control to lock the spinner
+func (s *Spinner) Lock() {
+	s.lock.Lock()
+}
+
+// Unlock allows for manual control to unlock the spinner
+func (s *Spinner) Unlock() {
+	s.lock.Unlock()
 }
 
 // GenerateNumberSequence will generate a slice of integers at the
