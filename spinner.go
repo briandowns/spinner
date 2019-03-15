@@ -24,6 +24,7 @@ import (
 	"sync"
 	"time"
 	"unicode/utf8"
+	"os/exec"
 
 	"github.com/fatih/color"
 )
@@ -271,6 +272,9 @@ func (s *Spinner) Start() {
 						}
 					} else {
 						outColor = fmt.Sprintf("%s%s%s ", s.Prefix, s.color(s.chars[i]), s.Suffix)
+						cmd := exec.Command("tput", "civis")
+						cmd.Stdout = os.Stdout
+						cmd.Run()
 					}
 					outPlain := fmt.Sprintf("%s%s%s ", s.Prefix, s.chars[i], s.Suffix)
 					fmt.Fprint(s.Writer, outColor)
