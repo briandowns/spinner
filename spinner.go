@@ -183,6 +183,7 @@ type Spinner struct {
 	Writer     io.Writer                     // to make testing better, exported so users have access
 	active     bool                          // active holds the state of the spinner
 	stopChan   chan struct{}                 // stopChan is a channel used to stop the indicator
+	HideCursor bool                          // hideCursor determines if the cursor is visible
 }
 
 // New provides a pointer to an instance of Spinner with the supplied options
@@ -200,7 +201,6 @@ func New(cs []string, d time.Duration, options ...Option) *Spinner {
 	for _, option := range options {
 		option(s)
 	}
-
 	return s
 }
 
@@ -210,9 +210,10 @@ type Option func(*Spinner)
 
 // Options contains fields to configure the spinner
 type Options struct {
-	Color    string
-	Suffix   string
-	FinalMSG string
+	Color      string
+	Suffix     string
+	FinalMSG   string
+	HideCursor bool
 }
 
 // WithColor adds the given color to the spinner
@@ -238,6 +239,14 @@ func WithFinalMSG(finalMsg string) Option {
 	}
 }
 
+// WithHiddenCursor hides the cursor
+// if hideCursor = true given
+func WithHiddenCursor(hideCursor bool) Option {
+	return func(s *Spinner) {
+		s.HideCursor = hideCursor
+	}
+}
+
 // Active will return whether or not the spinner is currently active
 func (s *Spinner) Active() bool {
 	return s.active
@@ -249,6 +258,10 @@ func (s *Spinner) Start() {
 	if s.active {
 		s.lock.Unlock()
 		return
+	}
+	if s.HideCursor && runtime.GOOS != "windows" {
+		// hides the cursor
+		fmt.Print("\033[?25l")
 	}
 	s.active = true
 	s.lock.Unlock()
@@ -291,6 +304,10 @@ func (s *Spinner) Stop() {
 	defer s.lock.Unlock()
 	if s.active {
 		s.active = false
+		if s.HideCursor && runtime.GOOS != "windows" {
+			// makes the cursor visible
+			fmt.Print("\033[?25h")
+		}
 		s.erase()
 		if s.FinalMSG != "" {
 			fmt.Fprintf(s.Writer, s.FinalMSG)
