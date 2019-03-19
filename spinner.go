@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"runtime"
 	"strconv"
 	"sync"
@@ -260,6 +259,10 @@ func (s *Spinner) Start() {
 		s.lock.Unlock()
 		return
 	}
+	if s.HideCursor && runtime.GOOS != "windows" {
+		// hides the cursor
+		fmt.Print("\033[?25l")
+	}
 	s.active = true
 	s.lock.Unlock()
 
@@ -281,11 +284,6 @@ func (s *Spinner) Start() {
 						}
 					} else {
 						outColor = fmt.Sprintf("%s%s%s ", s.Prefix, s.color(s.chars[i]), s.Suffix)
-						if s.HideCursor {
-							cmd := exec.Command("tput", "civis")
-							cmd.Stdout = os.Stdout
-							cmd.Run()
-						}
 					}
 					outPlain := fmt.Sprintf("%s%s%s ", s.Prefix, s.chars[i], s.Suffix)
 					fmt.Fprint(s.Writer, outColor)
@@ -306,16 +304,15 @@ func (s *Spinner) Stop() {
 	defer s.lock.Unlock()
 	if s.active {
 		s.active = false
+		if s.HideCursor && runtime.GOOS != "windows" {
+			// makes the cursor visible
+			fmt.Print("\033[?25h")
+		}
 		s.erase()
 		if s.FinalMSG != "" {
 			fmt.Fprintf(s.Writer, s.FinalMSG)
 		}
 		s.stopChan <- struct{}{}
-		if s.HideCursor && runtime.GOOS != "windows" {
-			cmd := exec.Command("tput", "cvvis")
-			cmd.Stdout = os.Stdout
-			cmd.Run()
-		}
 	}
 }
 
