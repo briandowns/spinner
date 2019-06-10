@@ -372,11 +372,13 @@ func (s *Spinner) UpdateCharSet(cs []string) {
 func (s *Spinner) erase() {
 	n := utf8.RuneCountInString(s.lastOutput)
 	if runtime.GOOS == "windows" {
-		clearString := "\r"
+		clearString := ""
 		for i := 0; i < n; i++ {
 			clearString += " "
 		}
+		clearString += "\r"
 		fmt.Fprintf(s.Writer, clearString)
+		s.lastOutput = ""
 		return
 	}
 	del, _ := hex.DecodeString("7f")
