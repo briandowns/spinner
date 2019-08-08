@@ -163,11 +163,10 @@ var colorAttributeMap = map[string]color.Attribute{
 
 // validColor will make sure the given color is actually allowed
 func validColor(c string) bool {
-	valid := false
 	if validColors[c] {
-		valid = true
+		return true
 	}
-	return valid
+	return false
 }
 
 // Spinner struct to hold the provided options
@@ -333,7 +332,6 @@ func (s *Spinner) Reverse() {
 
 // Color will set the struct field for the given color to be used
 func (s *Spinner) Color(colors ...string) error {
-
 	colorAttributes := make([]color.Attribute, len(colors))
 
 	// Verify colours are valid and place the appropriate attribute in the array
@@ -341,7 +339,6 @@ func (s *Spinner) Color(colors ...string) error {
 		if !validColor(c) {
 			return errInvalidColor
 		}
-
 		colorAttributes[index] = colorAttributeMap[c]
 	}
 
@@ -372,7 +369,7 @@ func (s *Spinner) UpdateCharSet(cs []string) {
 func (s *Spinner) erase() {
 	n := utf8.RuneCountInString(s.lastOutput)
 	if runtime.GOOS == "windows" {
-		clearString := ""
+		var clearString string
 		for i := 0; i < n; i++ {
 			clearString += " "
 		}
@@ -382,12 +379,7 @@ func (s *Spinner) erase() {
 		return
 	}
 	del, _ := hex.DecodeString("7f")
-	for _, c := range []string{
-		"\b",
-		string(del),
-		"\b",
-		"\033[K", // for macOS Terminal
-	} {
+	for _, c := range []string{"\b", string(del), "\b", "\033[K"} { // "\033[K" for macOS Terminal
 		for i := 0; i < n; i++ {
 			fmt.Fprintf(s.Writer, c)
 		}
