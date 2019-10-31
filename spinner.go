@@ -274,6 +274,10 @@ func (s *Spinner) Start() {
 				default:
 					s.lock.Lock()
 					s.erase()
+					if !s.active {
+						return
+					}
+					
 					var outColor string
 					if runtime.GOOS == "windows" {
 						if s.Writer == os.Stderr {
