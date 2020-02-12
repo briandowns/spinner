@@ -126,6 +126,36 @@ func TestRestart(t *testing.T) {
 	s = nil
 }
 
+// TestHookFunctions will verify that hook functions works as expected
+func TestHookFunctions(t *testing.T) {
+	s := New(CharSets[4], 50*time.Millisecond)
+	var out syncBuffer
+	s.Writer = &out
+	s.PreUpdate = func(s *Spinner) {
+		fmt.Fprintf(s.Writer, "pre-update")
+	}
+	s.PostUpdate = func(s *Spinner) {
+		fmt.Fprintf(s.Writer, "post-update")
+	}
+
+	s.Start()
+	s.Color("cyan")
+	time.Sleep(200 * time.Millisecond)
+	s.Stop()
+	time.Sleep(50 * time.Millisecond)
+	out.Lock()
+	defer out.Unlock()
+	result := out.Bytes()
+	if !bytes.Contains(result, []byte("pre-update")) {
+		t.Error("pre-update failed")
+	}
+
+	if !bytes.Contains(result, []byte("post-update")) {
+		t.Error("post-update failed")
+	}
+	s = nil
+}
+
 // TestReverse will verify that the given spinner can stop and start again reversed
 func TestReverse(t *testing.T) {
 	a := New(CharSets[10], 1*time.Second)
