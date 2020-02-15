@@ -183,6 +183,8 @@ type Spinner struct {
 	active     bool                          // active holds the state of the spinner
 	stopChan   chan struct{}                 // stopChan is a channel used to stop the indicator
 	HideCursor bool                          // hideCursor determines if the cursor is visible
+	PreUpdate  func(s *Spinner)              // will be triggered before every spinner update
+	PostUpdate func(s *Spinner)              // will be triggered after every spinner update
 }
 
 // New provides a pointer to an instance of Spinner with the supplied options
@@ -278,6 +280,10 @@ func (s *Spinner) Start() {
 						return
 					}
 
+					if s.PreUpdate != nil {
+						s.PreUpdate(s)
+					}
+
 					var outColor string
 					if runtime.GOOS == "windows" {
 						if s.Writer == os.Stderr {
@@ -292,8 +298,12 @@ func (s *Spinner) Start() {
 					fmt.Fprint(s.Writer, outColor)
 					s.lastOutput = outPlain
 					delay := s.Delay
-					s.lock.Unlock()
 
+					if s.PostUpdate != nil {
+						s.PostUpdate(s)
+					}
+
+					s.lock.Unlock()
 					time.Sleep(delay)
 				}
 			}
