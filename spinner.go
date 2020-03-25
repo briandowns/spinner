@@ -161,7 +161,7 @@ var colorAttributeMap = map[string]color.Attribute{
 	"bgHiWhite":   color.BgHiWhite,
 }
 
-// validColor will make sure the given color is actually allowed
+// validColor will make sure the given color is actually allowed.
 func validColor(c string) bool {
 	if validColors[c] {
 		return true
@@ -169,8 +169,9 @@ func validColor(c string) bool {
 	return false
 }
 
-// Spinner struct to hold the provided options
+// Spinner struct to hold the provided options.
 type Spinner struct {
+	mu         *sync.RWMutex                 //
 	Delay      time.Duration                 // Delay is the speed of the indicator
 	chars      []string                      // chars holds the chosen character set
 	Prefix     string                        // Prefix is the text preppended to the indicator
@@ -178,8 +179,7 @@ type Spinner struct {
 	FinalMSG   string                        // string displayed after Stop() is called
 	lastOutput string                        // last character(set) written
 	color      func(a ...interface{}) string // default color is white
-	lock       *sync.RWMutex                 //
-	Writer     io.Writer                     // to make testing better, exported so users have access
+	Writer     io.Writer                     // to make testing better, exported so users have access. Use `WithWriter` to update after initialization.
 	active     bool                          // active holds the state of the spinner
 	stopChan   chan struct{}                 // stopChan is a channel used to stop the indicator
 	HideCursor bool                          // hideCursor determines if the cursor is visible
@@ -187,13 +187,13 @@ type Spinner struct {
 	PostUpdate func(s *Spinner)              // will be triggered after every spinner update
 }
 
-// New provides a pointer to an instance of Spinner with the supplied options
+// New provides a pointer to an instance of Spinner with the supplied options.
 func New(cs []string, d time.Duration, options ...Option) *Spinner {
 	s := &Spinner{
 		Delay:    d,
 		chars:    cs,
 		color:    color.New(color.FgWhite).SprintFunc(),
-		lock:     &sync.RWMutex{},
+		mu:       &sync.RWMutex{},
 		Writer:   color.Output,
 		active:   false,
 		stopChan: make(chan struct{}, 1),
@@ -206,10 +206,10 @@ func New(cs []string, d time.Duration, options ...Option) *Spinner {
 }
 
 // Option is a function that takes a spinner and applies
-// a given configuration
+// a given configuration.
 type Option func(*Spinner)
 
-// Options contains fields to configure the spinner
+// Options contains fields to configure the spinner.
 type Options struct {
 	Color      string
 	Suffix     string
@@ -217,7 +217,7 @@ type Options struct {
 	HideCursor bool
 }
 
-// WithColor adds the given color to the spinner
+// WithColor adds the given color to the spinner.
 func WithColor(color string) Option {
 	return func(s *Spinner) {
 		s.Color(color)
@@ -225,7 +225,7 @@ func WithColor(color string) Option {
 }
 
 // WithSuffix adds the given string to the spinner
-// as the suffix
+// as the suffix.
 func WithSuffix(suffix string) Option {
 	return func(s *Spinner) {
 		s.Suffix = suffix
@@ -233,7 +233,7 @@ func WithSuffix(suffix string) Option {
 }
 
 // WithFinalMSG adds the given string ot the spinner
-// as the final message to be written
+// as the final message to be written.
 func WithFinalMSG(finalMsg string) Option {
 	return func(s *Spinner) {
 		s.FinalMSG = finalMsg
@@ -241,23 +241,34 @@ func WithFinalMSG(finalMsg string) Option {
 }
 
 // WithHiddenCursor hides the cursor
-// if hideCursor = true given
+// if hideCursor = true given.
 func WithHiddenCursor(hideCursor bool) Option {
 	return func(s *Spinner) {
 		s.HideCursor = hideCursor
 	}
 }
 
-// Active will return whether or not the spinner is currently active
+// WithWriter adds the given writer to the spinner. This
+// function should be favored over directly assigning to
+// the struct value.
+func WithWriter(w io.Writer) Option {
+	return func(s *Spinner) {
+		s.mu.Lock()
+		s.Writer = w
+		s.mu.Unlock()
+	}
+}
+
+// Active will return whether or not the spinner is currently active.
 func (s *Spinner) Active() bool {
 	return s.active
 }
 
-// Start will start the indicator
+// Start will start the indicator.
 func (s *Spinner) Start() {
-	s.lock.Lock()
+	s.mu.Lock()
 	if s.active {
-		s.lock.Unlock()
+		s.mu.Unlock()
 		return
 	}
 	if s.HideCursor && runtime.GOOS != "windows" {
@@ -265,7 +276,7 @@ func (s *Spinner) Start() {
 		fmt.Print("\033[?25l")
 	}
 	s.active = true
-	s.lock.Unlock()
+	s.mu.Unlock()
 
 	go func() {
 		for {
@@ -274,7 +285,7 @@ func (s *Spinner) Start() {
 				case <-s.stopChan:
 					return
 				default:
-					s.lock.Lock()
+					s.mu.Lock()
 					s.erase()
 					if !s.active {
 						return
@@ -303,7 +314,7 @@ func (s *Spinner) Start() {
 						s.PostUpdate(s)
 					}
 
-					s.lock.Unlock()
+					s.mu.Unlock()
 					time.Sleep(delay)
 				}
 			}
@@ -311,10 +322,10 @@ func (s *Spinner) Start() {
 	}()
 }
 
-// Stop stops the indicator
+// Stop stops the indicator.
 func (s *Spinner) Stop() {
-	s.lock.Lock()
-	defer s.lock.Unlock()
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	if s.active {
 		s.active = false
 		if s.HideCursor && runtime.GOOS != "windows" {
@@ -329,22 +340,22 @@ func (s *Spinner) Stop() {
 	}
 }
 
-// Restart will stop and start the indicator
+// Restart will stop and start the indicator.
 func (s *Spinner) Restart() {
 	s.Stop()
 	s.Start()
 }
 
-// Reverse will reverse the order of the slice assigned to the indicator
+// Reverse will reverse the order of the slice assigned to the indicator.
 func (s *Spinner) Reverse() {
-	s.lock.Lock()
-	defer s.lock.Unlock()
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	for i, j := 0, len(s.chars)-1; i < j; i, j = i+1, j-1 {
 		s.chars[i], s.chars[j] = s.chars[j], s.chars[i]
 	}
 }
 
-// Color will set the struct field for the given color to be used
+// Color will set the struct field for the given color to be used.
 func (s *Spinner) Color(colors ...string) error {
 	colorAttributes := make([]color.Attribute, len(colors))
 
@@ -356,29 +367,28 @@ func (s *Spinner) Color(colors ...string) error {
 		colorAttributes[index] = colorAttributeMap[c]
 	}
 
-	s.lock.Lock()
+	s.mu.Lock()
 	s.color = color.New(colorAttributes...).SprintFunc()
-	s.lock.Unlock()
+	s.mu.Unlock()
 	s.Restart()
 	return nil
 }
 
-// UpdateSpeed will set the indicator delay to the given value
+// UpdateSpeed will set the indicator delay to the given value.
 func (s *Spinner) UpdateSpeed(d time.Duration) {
-	s.lock.Lock()
-	defer s.lock.Unlock()
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	s.Delay = d
 }
 
-// UpdateCharSet will change the current character set to the given one
+// UpdateCharSet will change the current character set to the given one.
 func (s *Spinner) UpdateCharSet(cs []string) {
-	s.lock.Lock()
-	defer s.lock.Unlock()
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	s.chars = cs
 }
 
-// erase deletes written characters
-//
+// erase deletes written characters.
 // Caller must already hold s.lock.
 func (s *Spinner) erase() {
 	n := utf8.RuneCountInString(s.lastOutput)
@@ -401,18 +411,18 @@ func (s *Spinner) erase() {
 	s.lastOutput = ""
 }
 
-// Lock allows for manual control to lock the spinner
+// Lock allows for manual control to lock the spinner.
 func (s *Spinner) Lock() {
-	s.lock.Lock()
+	s.mu.Lock()
 }
 
-// Unlock allows for manual control to unlock the spinner
+// Unlock allows for manual control to unlock the spinner.
 func (s *Spinner) Unlock() {
-	s.lock.Unlock()
+	s.mu.Unlock()
 }
 
 // GenerateNumberSequence will generate a slice of integers at the
-// provided length and convert them each to a string
+// provided length and convert them each to a string.
 func GenerateNumberSequence(length int) []string {
 	numSeq := make([]string, length)
 	for i := 0; i < length; i++ {

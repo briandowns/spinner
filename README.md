@@ -240,12 +240,13 @@ fmt.Println(s.Active())
 
 Feature suggested and write up by [dekz](https://github.com/dekz)
 
-Setting the Spinner Writer to Stderr helps show progress to the user, with the enhancement to chain, pipe or redirect the output.
+Setting the Spinner Writer to Stderr helps show progress to the user, with the enhancement to chain, pipe or redirect the output. 
+
+This is the preferred method of setting a Writer at this time.
 
 ```go
-s := spinner.New(spinner.CharSets[11], 100*time.Millisecond)
+s := spinner.New(spinner.CharSets[11], 100*time.Millisecond, spinner.WithWriter(os.Stderr))
 s.Suffix = " Encrypting data..."
-s.Writer = os.Stderr
 s.Start()
 // Encrypt the data into ciphertext
 fmt.Println(os.Stdout, ciphertext)

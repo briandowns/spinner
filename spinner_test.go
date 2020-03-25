@@ -15,6 +15,7 @@ package spinner
 import (
 	"bytes"
 	"fmt"
+	"io/ioutil"
 	"reflect"
 	"sync"
 	"testing"
@@ -231,8 +232,8 @@ func TestBackspace(t *testing.T) {
 func TestColorError(t *testing.T) {
 	s := New(CharSets[0], 100*time.Millisecond)
 
-	invalidColorName := "bluez"
-	validColorName := "green"
+	const invalidColorName = "bluez"
+	const validColorName = "green"
 
 	if s.Color(invalidColorName) != errInvalidColor {
 		t.Error("Color method did not return an error when given an invalid color.")
@@ -241,6 +242,11 @@ func TestColorError(t *testing.T) {
 	if s.Color(validColorName) != nil {
 		t.Error("Color method did not return nil when given a valid color name.")
 	}
+}
+
+func TestWithWriter(t *testing.T) {
+	s := New(CharSets[9], time.Millisecond*400, WithWriter(ioutil.Discard))
+	_ = s
 }
 
 /*
