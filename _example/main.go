@@ -38,9 +38,7 @@ func main() {
 	}
 
 	s.UpdateCharSet(spinner.CharSets[20])
-
 	s.Reverse()
-
 	s.Restart()
 
 	time.Sleep(4 * time.Second) // Run for some time to simulate work
