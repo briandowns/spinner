@@ -285,11 +285,11 @@ func (s *Spinner) Start() {
 				case <-s.stopChan:
 					return
 				default:
-					s.mu.Lock()
-					s.erase()
 					if !s.active {
 						return
 					}
+					s.mu.Lock()
+					s.erase()
 
 					if s.PreUpdate != nil {
 						s.PreUpdate(s)
