@@ -334,7 +334,7 @@ func (s *Spinner) Stop() {
 		}
 		s.erase()
 		if s.FinalMSG != "" {
-			fmt.Fprintf(s.Writer, s.FinalMSG)
+			fmt.Fprint(s.Writer, s.FinalMSG)
 		}
 		s.stopChan <- struct{}{}
 	}
