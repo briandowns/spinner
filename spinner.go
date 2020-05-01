@@ -403,11 +403,12 @@ func (s *Spinner) erase() {
 		return
 	}
 	del, _ := hex.DecodeString("7f")
-	for _, c := range []string{"\b", string(del), "\b", "\033[K"} { // "\033[K" for macOS Terminal
+	for _, c := range []string{"\b", string(del)} {
 		for i := 0; i < n; i++ {
 			fmt.Fprintf(s.Writer, c)
 		}
 	}
+	fmt.Fprintf(s.Writer, "\033[K") // erases to end of line
 	s.lastOutput = ""
 }
 
