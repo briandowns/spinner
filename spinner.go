@@ -408,7 +408,7 @@ func (s *Spinner) erase() {
 			fmt.Fprintf(s.Writer, c)
 		}
 	}
-	fmt.Fprintf(s.Writer, "\033[K") // erases to end of line
+	fmt.Fprintf(s.Writer, "\r\033[K") // erases to end of line
 	s.lastOutput = ""
 }
 
