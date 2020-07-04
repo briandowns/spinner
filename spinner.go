@@ -14,13 +14,13 @@
 package spinner
 
 import (
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
 	"os"
 	"runtime"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 	"unicode/utf8"
@@ -335,7 +335,7 @@ func (s *Spinner) Stop() {
 		}
 		s.erase()
 		if s.FinalMSG != "" {
-			fmt.Fprintf(s.Writer, s.FinalMSG)
+			fmt.Fprint(s.Writer, s.FinalMSG)
 		}
 		s.stopChan <- struct{}{}
 	}
@@ -394,20 +394,13 @@ func (s *Spinner) UpdateCharSet(cs []string) {
 func (s *Spinner) erase() {
 	n := utf8.RuneCountInString(s.lastOutput)
 	if runtime.GOOS == "windows" {
-		clearString := "\r"
-		for i := 0; i < n; i++ {
-			clearString += " "
-		}
-		clearString += "\r"
-		fmt.Fprintf(s.Writer, clearString)
+		clearString := "\r" + strings.Repeat(" ", n) + "\r"
+		fmt.Fprint(s.Writer, clearString)
 		s.lastOutput = ""
 		return
 	}
-	del, _ := hex.DecodeString("7f")
-	for _, c := range []string{"\b", string(del)} {
-		for i := 0; i < n; i++ {
-			fmt.Fprintf(s.Writer, c)
-		}
+	for _, c := range []string{"\b", "\127", "\b", "\033[K"} { // "\033[K" for macOS Terminal
+		fmt.Fprint(s.Writer, strings.Repeat(c, n))
 	}
 	fmt.Fprintf(s.Writer, "\r\033[K") // erases to end of line
 	s.lastOutput = ""
