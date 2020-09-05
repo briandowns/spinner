@@ -14,13 +14,14 @@
 package spinner
 
 import (
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"os"
 	"runtime"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
 	"unicode/utf8"
@@ -171,32 +172,34 @@ func validColor(c string) bool {
 
 // Spinner struct to hold the provided options.
 type Spinner struct {
-	mu         *sync.RWMutex                 //
-	Delay      time.Duration                 // Delay is the speed of the indicator
-	chars      []string                      // chars holds the chosen character set
-	Prefix     string                        // Prefix is the text preppended to the indicator
-	Suffix     string                        // Suffix is the text appended to the indicator
-	FinalMSG   string                        // string displayed after Stop() is called
-	lastOutput string                        // last character(set) written
-	color      func(a ...interface{}) string // default color is white
-	Writer     io.Writer                     // to make testing better, exported so users have access. Use `WithWriter` to update after initialization.
-	active     bool                          // active holds the state of the spinner
-	stopChan   chan struct{}                 // stopChan is a channel used to stop the indicator
-	HideCursor bool                          // hideCursor determines if the cursor is visible
-	PreUpdate  func(s *Spinner)              // will be triggered before every spinner update
-	PostUpdate func(s *Spinner)              // will be triggered after every spinner update
+	mu              *sync.RWMutex                 //
+	Delay           time.Duration                 // Delay is the speed of the indicator
+	chars           []string                      // chars holds the chosen character set
+	Prefix          string                        // Prefix is the text preppended to the indicator
+	Suffix          string                        // Suffix is the text appended to the indicator
+	FinalMSG        string                        // string displayed after Stop() is called
+	lastOutput      string                        // last character(set) written
+	color           func(a ...interface{}) string // default color is white
+	Writer          io.Writer                     // to make testing better, exported so users have access. Use `WithWriter` to update after initialization.
+	active          bool                          // active holds the state of the spinner
+	ShowTimeElapsed bool                          // whether to show the elapsed time
+	stopChan        chan struct{}                 // stopChan is a channel used to stop the indicator
+	HideCursor      bool                          // hideCursor determines if the cursor is visible
+	PreUpdate       func(s *Spinner)              // will be triggered before every spinner update
+	PostUpdate      func(s *Spinner)              // will be triggered after every spinner update
 }
 
 // New provides a pointer to an instance of Spinner with the supplied options.
 func New(cs []string, d time.Duration, options ...Option) *Spinner {
 	s := &Spinner{
-		Delay:    d,
-		chars:    cs,
-		color:    color.New(color.FgWhite).SprintFunc(),
-		mu:       &sync.RWMutex{},
-		Writer:   color.Output,
-		active:   false,
-		stopChan: make(chan struct{}, 1),
+		Delay:           d,
+		chars:           cs,
+		color:           color.New(color.FgWhite).SprintFunc(),
+		mu:              &sync.RWMutex{},
+		Writer:          color.Output,
+		active:          false,
+		ShowTimeElapsed: false,
+		stopChan:        make(chan struct{}, 1),
 	}
 
 	for _, option := range options {
@@ -221,6 +224,13 @@ type Options struct {
 func WithColor(color string) Option {
 	return func(s *Spinner) {
 		s.Color(color)
+	}
+}
+
+// WithElapsedTime will show the time that has elapsed since spinner was started
+func WithElapsedTime(show bool) Option {
+	return func(s *Spinner) {
+		s.ShowTimeElapsed = show
 	}
 }
 
@@ -279,34 +289,49 @@ func (s *Spinner) Start() {
 	s.mu.Unlock()
 
 	go func() {
+		startTime := time.Now()
 		for {
 			for i := 0; i < len(s.chars); i++ {
 				select {
 				case <-s.stopChan:
 					return
 				default:
-					s.mu.Lock()
 					if !s.active {
-						s.mu.Unlock()
 						return
 					}
+					s.mu.Lock()
 					s.erase()
 
 					if s.PreUpdate != nil {
 						s.PreUpdate(s)
 					}
 
+					timer := ""
+					if s.ShowTimeElapsed {
+						elapsed := time.Since(startTime)
+						minutes := fmt.Sprintf("%.0f", math.Floor(elapsed.Minutes()))
+						if len(minutes) == 1 {
+							minutes = "0" + minutes
+						}
+						seconds := fmt.Sprintf("%.0f", math.Floor(elapsed.Seconds()))
+						if len(seconds) == 1 {
+							seconds = "0" + seconds
+						}
+
+						timer = fmt.Sprintf(" (%s:%s)", minutes, seconds)
+					}
+
 					var outColor string
 					if runtime.GOOS == "windows" {
 						if s.Writer == os.Stderr {
-							outColor = fmt.Sprintf("\r%s%s%s ", s.Prefix, s.chars[i], s.Suffix)
+							outColor = fmt.Sprintf("\r%s%s%s%s ", s.Prefix, s.chars[i], s.Suffix, timer)
 						} else {
-							outColor = fmt.Sprintf("\r%s%s%s ", s.Prefix, s.color(s.chars[i]), s.Suffix)
+							outColor = fmt.Sprintf("\r%s%s%s%s ", s.Prefix, s.color(s.chars[i]), s.Suffix, timer)
 						}
 					} else {
-						outColor = fmt.Sprintf("\r%s%s%s ", s.Prefix, s.color(s.chars[i]), s.Suffix)
+						outColor = fmt.Sprintf("%s%s%s%s ", s.Prefix, s.color(s.chars[i]), s.Suffix, timer)
 					}
-					outPlain := fmt.Sprintf("\r%s%s%s ", s.Prefix, s.chars[i], s.Suffix)
+					outPlain := fmt.Sprintf("%s%s%s%s ", s.Prefix, s.chars[i], s.Suffix, timer)
 					fmt.Fprint(s.Writer, outColor)
 					s.lastOutput = outPlain
 					delay := s.Delay
@@ -335,7 +360,7 @@ func (s *Spinner) Stop() {
 		}
 		s.erase()
 		if s.FinalMSG != "" {
-			fmt.Fprint(s.Writer, s.FinalMSG)
+			fmt.Fprintf(s.Writer, s.FinalMSG)
 		}
 		s.stopChan <- struct{}{}
 	}
@@ -394,13 +419,20 @@ func (s *Spinner) UpdateCharSet(cs []string) {
 func (s *Spinner) erase() {
 	n := utf8.RuneCountInString(s.lastOutput)
 	if runtime.GOOS == "windows" {
-		clearString := "\r" + strings.Repeat(" ", n) + "\r"
-		fmt.Fprint(s.Writer, clearString)
+		clearString := "\r"
+		for i := 0; i < n; i++ {
+			clearString += " "
+		}
+		clearString += "\r"
+		fmt.Fprintf(s.Writer, clearString)
 		s.lastOutput = ""
 		return
 	}
-	for _, c := range []string{"\b", "\127", "\b", "\033[K"} { // "\033[K" for macOS Terminal
-		fmt.Fprint(s.Writer, strings.Repeat(c, n))
+	del, _ := hex.DecodeString("7f")
+	for _, c := range []string{"\b", string(del)} {
+		for i := 0; i < n; i++ {
+			fmt.Fprintf(s.Writer, c)
+		}
 	}
 	fmt.Fprintf(s.Writer, "\r\033[K") // erases to end of line
 	s.lastOutput = ""
