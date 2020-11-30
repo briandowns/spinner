@@ -356,7 +356,8 @@ func (s *Spinner) Reverse() {
 	}
 }
 
-// Color will set the struct field for the given color to be used.
+// Color will set the struct field for the given color to be used. The spinner
+// will need to be explicitly restarted.
 func (s *Spinner) Color(colors ...string) error {
 	colorAttributes := make([]color.Attribute, len(colors))
 
@@ -371,7 +372,6 @@ func (s *Spinner) Color(colors ...string) error {
 	s.mu.Lock()
 	s.color = color.New(colorAttributes...).SprintFunc()
 	s.mu.Unlock()
-	s.Restart()
 	return nil
 }
 
