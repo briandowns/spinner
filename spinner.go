@@ -393,12 +393,6 @@ func (s *Spinner) UpdateCharSet(cs []string) {
 // Caller must already hold s.lock.
 func (s *Spinner) erase() {
 	n := utf8.RuneCountInString(s.lastOutput)
-	if runtime.GOOS == "windows" {
-		clearString := "\r" + strings.Repeat(" ", n) + "\r"
-		fmt.Fprint(s.Writer, clearString)
-		s.lastOutput = ""
-		return
-	}
 	for _, c := range []string{"\b", "\127", "\b", "\033[K"} { // "\033[K" for macOS Terminal
 		fmt.Fprint(s.Writer, strings.Repeat(c, n))
 	}
