@@ -277,7 +277,7 @@ func isTerminal() (bool) {
 // Start will start the indicator.
 func (s *Spinner) Start() {
 	if !isTerminal() {
-		fmt.Printf("\nSpinner only available in terminal..")
+		fmt.Printf("\n")
 		return
 	}
 	s.mu.Lock()
