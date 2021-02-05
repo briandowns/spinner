@@ -278,6 +278,7 @@ func isTerminal() (bool) {
 func (s *Spinner) Start() {
 	if !isTerminal() {
 		fmt.Sprintf("Spinner only available in terminal..")
+		defer fmt.Print("\n")
 		return
 	}
 	s.mu.Lock()
