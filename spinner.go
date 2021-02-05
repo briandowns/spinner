@@ -265,7 +265,7 @@ func (s *Spinner) Active() bool {
 	return s.active
 }
 
-func isTerminal() (bool) {
+func isTerminal() bool {
 	if isatty.IsTerminal(os.Stdout.Fd()){
 		return true
 	} else if isatty.IsCygwinTerminal(os.Stdout.Fd()){
