@@ -16,6 +16,7 @@ package spinner
 import (
 	"errors"
 	"fmt"
+	"github.com/mattn/go-isatty"
 	"io"
 	"os"
 	"runtime"
@@ -264,8 +265,21 @@ func (s *Spinner) Active() bool {
 	return s.active
 }
 
+func isTerminal() (bool) {
+	if isatty.IsTerminal(os.Stdout.Fd()){
+		return true
+	} else if isatty.IsCygwinTerminal(os.Stdout.Fd()){
+		return true
+	}
+	return false
+}
+
 // Start will start the indicator.
 func (s *Spinner) Start() {
+	if isTerminal() {
+		fmt.Sprintf("Spinner only available in terminal..")
+		return
+	}
 	s.mu.Lock()
 	if s.active {
 		s.mu.Unlock()
