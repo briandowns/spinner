@@ -287,7 +287,7 @@ func (s *Spinner) Start() {
 	}
 	if s.HideCursor && runtime.GOOS != "windows" {
 		// hides the cursor
-		fmt.Print("\033[?25l")
+		fmt.Fprint(s.Writer, "\033[?25l")
 	}
 	s.active = true
 	s.mu.Unlock()
@@ -345,7 +345,7 @@ func (s *Spinner) Stop() {
 		s.active = false
 		if s.HideCursor && runtime.GOOS != "windows" {
 			// makes the cursor visible
-			fmt.Print("\033[?25h")
+			fmt.Fprint(s.Writer, "\033[?25h")
 		}
 		s.erase()
 		if s.FinalMSG != "" {
