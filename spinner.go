@@ -350,10 +350,10 @@ func (s *Spinner) Restart() {
 // Reverse will reverse the order of the slice assigned to the indicator.
 func (s *Spinner) Reverse() {
 	s.mu.Lock()
-	defer s.mu.Unlock()
 	for i, j := 0, len(s.chars)-1; i < j; i, j = i+1, j-1 {
 		s.chars[i], s.chars[j] = s.chars[j], s.chars[i]
 	}
+	s.mu.Unlock()
 }
 
 // Color will set the struct field for the given color to be used. The spinner
@@ -378,15 +378,15 @@ func (s *Spinner) Color(colors ...string) error {
 // UpdateSpeed will set the indicator delay to the given value.
 func (s *Spinner) UpdateSpeed(d time.Duration) {
 	s.mu.Lock()
-	defer s.mu.Unlock()
 	s.Delay = d
+	s.mu.Unlock()
 }
 
 // UpdateCharSet will change the current character set to the given one.
 func (s *Spinner) UpdateCharSet(cs []string) {
 	s.mu.Lock()
-	defer s.mu.Unlock()
 	s.chars = cs
+	s.mu.Unlock()
 }
 
 // erase deletes written characters.
