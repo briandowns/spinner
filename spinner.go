@@ -396,9 +396,6 @@ func (s *Spinner) erase() {
 		s.lastOutput = ""
 		return
 	}
-	for _, c := range []string{"\b", "\127", "\b", "\033[K"} { // "\033[K" for macOS Terminal
-		fmt.Fprint(s.Writer, strings.Repeat(c, n))
-	}
 	fmt.Fprintf(s.Writer, "\r\033[K") // erases to end of line
 	s.lastOutput = ""
 }
