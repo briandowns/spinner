@@ -268,7 +268,7 @@ func (s *Spinner) Start() {
 		s.mu.Unlock()
 		return
 	}
-	if s.HideCursor && runtime.GOOS != "windows" {
+	if s.HideCursor && len(os.Getenv("WT_SESSION")) == 0 {
 		// hides the cursor
 		fmt.Fprint(s.Writer, "\033[?25l")
 	}
@@ -287,7 +287,9 @@ func (s *Spinner) Start() {
 						s.mu.Unlock()
 						return
 					}
-					s.erase()
+					if len(os.Getenv("WT_SESSION")) == 0 {
+						s.erase()
+					}
 
 					if s.PreUpdate != nil {
 						s.PreUpdate(s)
@@ -326,13 +328,17 @@ func (s *Spinner) Stop() {
 	defer s.mu.Unlock()
 	if s.active {
 		s.active = false
-		if s.HideCursor && runtime.GOOS != "windows" {
+		if s.HideCursor && len(os.Getenv("WT_SESSION")) == 0 {
 			// makes the cursor visible
 			fmt.Fprint(s.Writer, "\033[?25h")
 		}
 		s.erase()
 		if s.FinalMSG != "" {
-			fmt.Fprint(s.Writer, s.FinalMSG)
+			if runtime.GOOS == "windows"  && len(os.Getenv("WT_SESSION")) > 0{
+				fmt.Fprint(s.Writer, "\r", s.FinalMSG)
+			}else{
+				fmt.Fprint(s.Writer, s.FinalMSG)
+			}
 		}
 		s.stopChan <- struct{}{}
 	}
@@ -390,7 +396,7 @@ func (s *Spinner) UpdateCharSet(cs []string) {
 // Caller must already hold s.lock.
 func (s *Spinner) erase() {
 	n := utf8.RuneCountInString(s.lastOutput)
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == "windows" && len(os.Getenv("WT_SESSION")) == 0 {
 		clearString := "\r" + strings.Repeat(" ", n) + "\r"
 		fmt.Fprint(s.Writer, clearString)
 		s.lastOutput = ""
