@@ -96,6 +96,9 @@ var validColors = map[string]bool{
 	"bgHiWhite":   true,
 }
 
+// returns true if the OS is windows and the WT_SESSION env variable is set.
+var isWindowsTerminalOnWindows = len(os.Getenv("WT_SESSION")) > 0 && runtime.GOOS == "windows"
+
 // returns a valid color's foreground text color attribute
 var colorAttributeMap = map[string]color.Attribute{
 	// default colors for backwards compatibility
@@ -268,7 +271,7 @@ func (s *Spinner) Start() {
 		s.mu.Unlock()
 		return
 	}
-	if s.HideCursor && len(os.Getenv("WT_SESSION")) == 0 {
+	if s.HideCursor && !isWindowsTerminalOnWindows {
 		// hides the cursor
 		fmt.Fprint(s.Writer, "\033[?25l")
 	}
@@ -287,7 +290,7 @@ func (s *Spinner) Start() {
 						s.mu.Unlock()
 						return
 					}
-					if len(os.Getenv("WT_SESSION")) == 0 {
+					if !isWindowsTerminalOnWindows {
 						s.erase()
 					}
 
@@ -328,13 +331,13 @@ func (s *Spinner) Stop() {
 	defer s.mu.Unlock()
 	if s.active {
 		s.active = false
-		if s.HideCursor && len(os.Getenv("WT_SESSION")) == 0 {
+		if s.HideCursor && !isWindowsTerminalOnWindows {
 			// makes the cursor visible
 			fmt.Fprint(s.Writer, "\033[?25h")
 		}
 		s.erase()
 		if s.FinalMSG != "" {
-			if runtime.GOOS == "windows"  && len(os.Getenv("WT_SESSION")) > 0{
+			if isWindowsTerminalOnWindows {
 				fmt.Fprint(s.Writer, "\r", s.FinalMSG)
 			}else{
 				fmt.Fprint(s.Writer, s.FinalMSG)
@@ -396,7 +399,7 @@ func (s *Spinner) UpdateCharSet(cs []string) {
 // Caller must already hold s.lock.
 func (s *Spinner) erase() {
 	n := utf8.RuneCountInString(s.lastOutput)
-	if runtime.GOOS == "windows" && len(os.Getenv("WT_SESSION")) == 0 {
+	if runtime.GOOS == "windows" && !isWindowsTerminalOnWindows {
 		clearString := "\r" + strings.Repeat(" ", n) + "\r"
 		fmt.Fprint(s.Writer, clearString)
 		s.lastOutput = ""
