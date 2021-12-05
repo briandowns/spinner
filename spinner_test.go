@@ -106,25 +106,21 @@ func TestStop(t *testing.T) {
 
 // TestRestart will verify a spinner can be stopped and started again
 func TestRestart(t *testing.T) {
-	s := New(CharSets[4], 50*time.Millisecond)
-	var out syncBuffer
-	s.Writer = &out
+	s, out := withOutput(CharSets[4], 20*time.Millisecond)
+
 	s.Start()
-	s.Color("cyan")
-	time.Sleep(200 * time.Millisecond)
+	time.Sleep(75 * time.Millisecond)
 	s.Restart()
-	time.Sleep(200 * time.Millisecond)
+	time.Sleep(75 * time.Millisecond)
 	s.Stop()
-	time.Sleep(50 * time.Millisecond)
-	out.Lock()
-	defer out.Unlock()
+	time.Sleep(10 * time.Millisecond)
+
 	result := out.Bytes()
 	first := result[:len(result)/2]
-	secnd := result[len(result)/2:]
-	if string(first) != string(secnd) {
-		t.Errorf("Expected ==, got \n%#v != \n%#v", first, secnd)
+	second := result[len(result)/2:]
+	if !bytes.Equal(first, second) {
+		t.Errorf("expected restart output to match initial output. got=%q want=%q", first, second)
 	}
-	s = nil
 }
 
 // TestHookFunctions will verify that hook functions works as expected
