@@ -106,12 +106,12 @@ func TestStop(t *testing.T) {
 
 // TestRestart will verify a spinner can be stopped and started again
 func TestRestart(t *testing.T) {
-	s, out := withOutput(CharSets[4], 20*time.Millisecond)
+	s, out := withOutput(CharSets[4], 40*time.Millisecond)
 
 	s.Start()
-	time.Sleep(75 * time.Millisecond)
+	time.Sleep(150 * time.Millisecond)
 	s.Restart()
-	time.Sleep(75 * time.Millisecond)
+	time.Sleep(158 * time.Millisecond)
 	s.Stop()
 	time.Sleep(10 * time.Millisecond)
 
