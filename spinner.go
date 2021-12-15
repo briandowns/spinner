@@ -395,7 +395,7 @@ func (s *Spinner) UpdateCharSet(cs []string) {
 	s.mu.Unlock()
 }
 
-// erase deletes written characters.
+// erase deletes written characters on the current line.
 // Caller must already hold s.lock.
 func (s *Spinner) erase() {
 	n := utf8.RuneCountInString(s.lastOutput)
@@ -405,7 +405,14 @@ func (s *Spinner) erase() {
 		s.lastOutput = ""
 		return
 	}
-	fmt.Fprintf(s.Writer, "\033[K") // erases to end of line
+
+	// Taken from https://en.wikipedia.org/wiki/ANSI_escape_code:
+	// \r     - Carriage return - Moves the cursor to column zero
+	// \033[K - Erases part of the line. If n is 0 (or missing), clear from
+	// cursor to the end of the line. If n is 1, clear from cursor to beginning
+	// of the line. If n is 2, clear entire line. Cursor position does not
+	// change.
+	fmt.Fprintf(s.Writer, "\r\033[K")
 	s.lastOutput = ""
 }
 
