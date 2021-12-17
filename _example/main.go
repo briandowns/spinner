@@ -16,7 +16,7 @@ func main() {
 
 	s.UpdateCharSet(spinner.CharSets[9])  // Update spinner to use a different character set
 	s.UpdateSpeed(100 * time.Millisecond) // Update the speed the spinner spins at
-
+	s.HideCursor = true
 	s.Prefix = "prefixed text: " // Prefix text before the spinner
 	time.Sleep(4 * time.Second)
 	s.Prefix = ""
