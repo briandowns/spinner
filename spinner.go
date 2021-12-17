@@ -301,14 +301,14 @@ func (s *Spinner) Start() {
 					var outColor string
 					if runtime.GOOS == "windows" {
 						if s.Writer == os.Stderr {
-							outColor = fmt.Sprintf("\r%s%s%s ", s.Prefix, s.chars[i], s.Suffix)
+							outColor = fmt.Sprintf("\r%s%s%s", s.Prefix, s.chars[i], s.Suffix)
 						} else {
-							outColor = fmt.Sprintf("\r%s%s%s ", s.Prefix, s.color(s.chars[i]), s.Suffix)
+							outColor = fmt.Sprintf("\r%s%s%s", s.Prefix, s.color(s.chars[i]), s.Suffix)
 						}
 					} else {
-						outColor = fmt.Sprintf("\r%s%s%s ", s.Prefix, s.color(s.chars[i]), s.Suffix)
+						outColor = fmt.Sprintf("\r%s%s%s", s.Prefix, s.color(s.chars[i]), s.Suffix)
 					}
-					outPlain := fmt.Sprintf("\r%s%s%s ", s.Prefix, s.chars[i], s.Suffix)
+					outPlain := fmt.Sprintf("\r%s%s%s", s.Prefix, s.chars[i], s.Suffix)
 					fmt.Fprint(s.Writer, outColor)
 					s.lastOutput = outPlain
 					delay := s.Delay
