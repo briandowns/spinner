@@ -1,3 +1,5 @@
+// Copyright (c) 2021 Brian J. Downs
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -171,7 +173,7 @@ func validColor(c string) bool {
 
 // Spinner struct to hold the provided options.
 type Spinner struct {
-	mu         *sync.RWMutex                 //
+	mu         *sync.RWMutex
 	Delay      time.Duration                 // Delay is the speed of the indicator
 	chars      []string                      // chars holds the chosen character set
 	Prefix     string                        // Prefix is the text preppended to the indicator
@@ -202,6 +204,7 @@ func New(cs []string, d time.Duration, options ...Option) *Spinner {
 	for _, option := range options {
 		option(s)
 	}
+
 	return s
 }
 

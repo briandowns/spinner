@@ -3,8 +3,8 @@ arch:
   - ppc64le
 language: go
 go:
-  - 1.13
-  - 1.14.1
+  - 1.16
+  - 1.17.5
 env:
   - GOARCH: amd64
   - GOARCH: 386
