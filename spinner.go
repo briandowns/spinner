@@ -192,13 +192,14 @@ type Spinner struct {
 // New provides a pointer to an instance of Spinner with the supplied options.
 func New(cs []string, d time.Duration, options ...Option) *Spinner {
 	s := &Spinner{
-		Delay:    d,
-		chars:    cs,
-		color:    color.New(color.FgWhite).SprintFunc(),
-		mu:       &sync.RWMutex{},
-		Writer:   color.Output,
-		active:   false,
-		stopChan: make(chan struct{}, 1),
+		Delay:      d,
+		chars:      cs,
+		color:      color.New(color.FgWhite).SprintFunc(),
+		mu:         &sync.RWMutex{},
+		Writer:     color.Output,
+		stopChan:   make(chan struct{}, 1),
+		active:     false,
+		HideCursor: true,
 	}
 
 	for _, option := range options {
