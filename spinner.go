@@ -28,6 +28,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/fatih/color"
+	"github.com/mattn/go-isatty"
 )
 
 // errInvalidColor is returned when attempting to set an invalid color
@@ -271,7 +272,7 @@ func (s *Spinner) Active() bool {
 // Start will start the indicator.
 func (s *Spinner) Start() {
 	s.mu.Lock()
-	if s.active {
+	if s.active || !isRunningInTerminal() {
 		s.mu.Unlock()
 		return
 	}
@@ -438,4 +439,9 @@ func GenerateNumberSequence(length int) []string {
 		numSeq[i] = strconv.Itoa(i)
 	}
 	return numSeq
+}
+
+// isRunningInTerminal check if stdout file descriptor is terminal
+func isRunningInTerminal() bool {
+	return isatty.IsTerminal(os.Stdout.Fd())
 }
