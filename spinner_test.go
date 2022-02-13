@@ -18,10 +18,13 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"reflect"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/mattn/go-isatty"
 )
 
 const baseWait = 3
@@ -69,6 +72,10 @@ func TestStart(t *testing.T) {
 
 // TestActive will verify we can tell when a spinner is running
 func TestActive(t *testing.T) {
+	if !isatty.IsTerminal(os.Stdout.Fd()) {
+		t.Log("not running in a terminal")
+		return
+	}
 	s := New(CharSets[1], 100*time.Millisecond)
 	if s.Active() {
 		t.Error("expected a new spinner to not be active")
@@ -127,6 +134,10 @@ func TestRestart(t *testing.T) {
 
 // TestHookFunctions will verify that hook functions works as expected
 func TestHookFunctions(t *testing.T) {
+	if !isatty.IsTerminal(os.Stdout.Fd()) {
+		t.Log("not running in a termian")
+		return
+	}
 	s := New(CharSets[4], 50*time.Millisecond)
 	var out syncBuffer
 	s.Writer = &out
