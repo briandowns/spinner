@@ -6,13 +6,9 @@ jobs:
     parallelism: 2
     steps:
       - checkout
-      - run: mkdir -p $TEST_RESULTS
       - restore_cache:
           keys:
             - go-mod-v4-{{ checksum "go.sum" }}
-          command: |
-            PACKAGE_NAMES=$(go list ./... | circleci tests split --split-by=timings --timings-type=classname)
-            gotestsum --junitfile ${TEST_RESULTS}/gotestsum-report.xml -- $PACKAGE_NAMES
       - run: make test
       - save_cache:
           key: go-mod-v4-{{ checksum "go.sum" }}
