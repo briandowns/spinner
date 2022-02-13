@@ -1,6 +1,6 @@
 # Spinner
 
-[![GoDoc](https://godoc.org/github.com/briandowns/spinner?status.svg)](https://godoc.org/github.com/briandowns/spinner) [![CircleCI](https://circleci.com/gh/circleci/circleci-docs.svg?style=svg)](https://circleci.com/gh/circleci/circleci-docs)
+[![GoDoc](https://godoc.org/github.com/briandowns/spinner?status.svg)](https://godoc.org/github.com/briandowns/spinner) [![CircleCI](https://circleci.com/gh/briandowns/spinner.svg?style=svg)](https://circleci.com/gh/briandowns/spinner)
 
 spinner is a simple package to add a spinner / progress indicator to any terminal application. Examples can be found below as well as full examples in the examples directory.
 
