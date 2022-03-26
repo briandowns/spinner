@@ -174,20 +174,21 @@ func validColor(c string) bool {
 
 // Spinner struct to hold the provided options.
 type Spinner struct {
-	mu         *sync.RWMutex
-	Delay      time.Duration                 // Delay is the speed of the indicator
-	chars      []string                      // chars holds the chosen character set
-	Prefix     string                        // Prefix is the text preppended to the indicator
-	Suffix     string                        // Suffix is the text appended to the indicator
-	FinalMSG   string                        // string displayed after Stop() is called
-	lastOutput string                        // last character(set) written
-	color      func(a ...interface{}) string // default color is white
-	Writer     io.Writer                     // to make testing better, exported so users have access. Use `WithWriter` to update after initialization.
-	active     bool                          // active holds the state of the spinner
-	stopChan   chan struct{}                 // stopChan is a channel used to stop the indicator
-	HideCursor bool                          // hideCursor determines if the cursor is visible
-	PreUpdate  func(s *Spinner)              // will be triggered before every spinner update
-	PostUpdate func(s *Spinner)              // will be triggered after every spinner update
+	mu              *sync.RWMutex
+	Delay           time.Duration                 // Delay is the speed of the indicator
+	chars           []string                      // chars holds the chosen character set
+	Prefix          string                        // Prefix is the text preppended to the indicator
+	Suffix          string                        // Suffix is the text appended to the indicator
+	FinalMSG        string                        // string displayed after Stop() is called
+	lastOutputPlain string                        // last character(set) written
+	LastOutput      string                        // last character(set) written with colors
+	color           func(a ...interface{}) string // default color is white
+	Writer          io.Writer                     // to make testing better, exported so users have access. Use `WithWriter` to update after initialization.
+	active          bool                          // active holds the state of the spinner
+	stopChan        chan struct{}                 // stopChan is a channel used to stop the indicator
+	HideCursor      bool                          // hideCursor determines if the cursor is visible
+	PreUpdate       func(s *Spinner)              // will be triggered before every spinner update
+	PostUpdate      func(s *Spinner)              // will be triggered after every spinner update
 }
 
 // New provides a pointer to an instance of Spinner with the supplied options.
@@ -315,7 +316,8 @@ func (s *Spinner) Start() {
 					}
 					outPlain := fmt.Sprintf("\r%s%s%s", s.Prefix, s.chars[i], s.Suffix)
 					fmt.Fprint(s.Writer, outColor)
-					s.lastOutput = outPlain
+					s.lastOutputPlain = outPlain
+					s.LastOutput = outColor
 					delay := s.Delay
 
 					if s.PostUpdate != nil {
@@ -403,11 +405,11 @@ func (s *Spinner) UpdateCharSet(cs []string) {
 // erase deletes written characters on the current line.
 // Caller must already hold s.lock.
 func (s *Spinner) erase() {
-	n := utf8.RuneCountInString(s.lastOutput)
+	n := utf8.RuneCountInString(s.lastOutputPlain)
 	if runtime.GOOS == "windows" && !isWindowsTerminalOnWindows {
 		clearString := "\r" + strings.Repeat(" ", n) + "\r"
 		fmt.Fprint(s.Writer, clearString)
-		s.lastOutput = ""
+		s.lastOutputPlain = ""
 		return
 	}
 
@@ -418,7 +420,7 @@ func (s *Spinner) erase() {
 	// of the line. If n is 2, clear entire line. Cursor position does not
 	// change.
 	fmt.Fprintf(s.Writer, "\r\033[K")
-	s.lastOutput = ""
+	s.lastOutputPlain = ""
 }
 
 // Lock allows for manual control to lock the spinner.
