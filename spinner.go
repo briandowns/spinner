@@ -174,20 +174,21 @@ func validColor(c string) bool {
 
 // Spinner struct to hold the provided options.
 type Spinner struct {
-	mu         *sync.RWMutex
-	Delay      time.Duration                 // Delay is the speed of the indicator
-	chars      []string                      // chars holds the chosen character set
-	Prefix     string                        // Prefix is the text preppended to the indicator
-	Suffix     string                        // Suffix is the text appended to the indicator
-	FinalMSG   string                        // string displayed after Stop() is called
-	lastOutput string                        // last character(set) written
-	color      func(a ...interface{}) string // default color is white
-	Writer     io.Writer                     // to make testing better, exported so users have access. Use `WithWriter` to update after initialization.
-	active     bool                          // active holds the state of the spinner
-	stopChan   chan struct{}                 // stopChan is a channel used to stop the indicator
-	HideCursor bool                          // hideCursor determines if the cursor is visible
-	PreUpdate  func(s *Spinner)              // will be triggered before every spinner update
-	PostUpdate func(s *Spinner)              // will be triggered after every spinner update
+	mu          *sync.RWMutex
+	Delay       time.Duration                 // Delay is the speed of the indicator
+	chars       []string                      // chars holds the chosen character set
+	Prefix      string                        // Prefix is the text preppended to the indicator
+	Suffix      string                        // Suffix is the text appended to the indicator
+	FinalMSG    string                        // string displayed after Stop() is called
+	lastOutput  string                        // last character(set) written
+	color       func(a ...interface{}) string // default color is white
+	Writer      io.Writer                     // to make testing better, exported so users have access. Use `WithWriter` to update after initialization.
+	active      bool                          // active holds the state of the spinner
+	stopChan    chan struct{}                 // stopChan is a channel used to stop the indicator
+	ForceOutput bool                          // ForceOutput outputs the spinner to the writer whether running in a TTY or not.
+	HideCursor  bool                          // hideCursor determines if the cursor is visible
+	PreUpdate   func(s *Spinner)              // will be triggered before every spinner update
+	PostUpdate  func(s *Spinner)              // will be triggered after every spinner update
 }
 
 // New provides a pointer to an instance of Spinner with the supplied options.
@@ -272,7 +273,7 @@ func (s *Spinner) Active() bool {
 // Start will start the indicator.
 func (s *Spinner) Start() {
 	s.mu.Lock()
-	if s.active || !isRunningInTerminal() {
+	if !s.ForceOutput && (s.active || !isRunningInTerminal()) {
 		s.mu.Unlock()
 		return
 	}
