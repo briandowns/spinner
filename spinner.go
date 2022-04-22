@@ -100,7 +100,7 @@ var validColors = map[string]bool{
 }
 
 // returns true if the OS is windows and the WT_SESSION env variable is set.
-var isWindows = runtime.OSOS == "windows"
+var isWindows = runtime.GOOS == "windows"
 var isWindowsTerminalOnWindows = len(os.Getenv("WT_SESSION")) > 0 && isWindows
 
 // returns a valid color's foreground text color attribute
