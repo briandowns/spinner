@@ -186,6 +186,7 @@ type Spinner struct {
 	color           func(a ...interface{}) string // default color is white
 	Writer          io.Writer                     // to make testing better, exported so users have access. Use `WithWriter` to update after initialization.
 	active          bool                          // active holds the state of the spinner
+	enabled         bool                          // indicates whether the spinner is enabled or not
 	stopChan        chan struct{}                 // stopChan is a channel used to stop the indicator
 	HideCursor      bool                          // hideCursor determines if the cursor is visible
 	PreUpdate       func(s *Spinner)              // will be triggered before every spinner update
@@ -202,6 +203,7 @@ func New(cs []string, d time.Duration, options ...Option) *Spinner {
 		Writer:     color.Output,
 		stopChan:   make(chan struct{}, 1),
 		active:     false,
+		enabled:    true,
 		HideCursor: true,
 	}
 
@@ -271,10 +273,27 @@ func (s *Spinner) Active() bool {
 	return s.active
 }
 
+// Enabled returns whether or not the spinner is enabled.
+func (s *Spinner) Enabled() bool {
+	return s.enabled
+}
+
+// Enable enables and restarts the spinner
+func (s *Spinner) Enable() {
+	s.enabled = true
+	s.Restart()
+}
+
+// Disable stops and disables the spinner
+func (s *Spinner) Disable() {
+	s.enabled = false
+	s.Stop()
+}
+
 // Start will start the indicator.
 func (s *Spinner) Start() {
 	s.mu.Lock()
-	if s.active || !isRunningInTerminal() {
+	if s.active || !s.enabled || !isRunningInTerminal() {
 		s.mu.Unlock()
 		return
 	}
