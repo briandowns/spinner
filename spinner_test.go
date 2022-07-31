@@ -132,6 +132,28 @@ func TestRestart(t *testing.T) {
 	}
 }
 
+func TestDisable(t *testing.T) {
+	s, _ := withOutput(CharSets[4], 100*time.Millisecond)
+
+	s.Start()
+	time.Sleep(150 * time.Millisecond)
+	if !s.Enabled() {
+		t.Error("expected enabled spinner after startup")
+	}
+	time.Sleep(150 * time.Millisecond)
+	s.Disable()
+	time.Sleep(150 * time.Millisecond)
+	if s.Enabled() {
+		t.Error("expected disabling the spinner works")
+	}
+	time.Sleep(150 * time.Millisecond)
+	s.Enable()
+	time.Sleep(150 * time.Millisecond)
+	if !s.Enabled() {
+		t.Error("expected enabling the spinner works")
+	}
+}
+
 // TestHookFunctions will verify that hook functions works as expected
 func TestHookFunctions(t *testing.T) {
 	if !isatty.IsTerminal(os.Stdout.Fd()) {
