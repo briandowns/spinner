@@ -3,6 +3,7 @@ package main
 
 import (
 	"log"
+	"strings"
 	"time"
 
 	"github.com/briandowns/spinner"
@@ -22,6 +23,13 @@ func main() {
 	s.Suffix = " :appended text" // Append text after the spinner
 	time.Sleep(4 * time.Second)
 
+	s.Suffix = " :appended " + strings.Repeat("very long text ", 20) // Append very long text
+	time.Sleep(4 * time.Second)
+
+	s.Suffix = " :appended multi \nline\nsuffix\ntext" // Append multi line text
+	time.Sleep(4 * time.Second)
+
+	s.Suffix = " :appended text" // Append text after the spinner
 	s.Prefix = "Colors: "
 
 	if err := s.Color("yellow"); err != nil {
