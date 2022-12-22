@@ -19,6 +19,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"os"
 	"runtime"
 	"strconv"
@@ -29,6 +30,7 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/mattn/go-isatty"
+	"golang.org/x/term"
 )
 
 // errInvalidColor is returned when attempting to set an invalid color
@@ -439,13 +441,23 @@ func (s *Spinner) erase() {
 		return
 	}
 
+	numberOfLinesToErase := computeNumberOfLinesNeededToPrintString(s.lastOutputPlain)
+
 	// Taken from https://en.wikipedia.org/wiki/ANSI_escape_code:
 	// \r     - Carriage return - Moves the cursor to column zero
 	// \033[K - Erases part of the line. If n is 0 (or missing), clear from
 	// cursor to the end of the line. If n is 1, clear from cursor to beginning
 	// of the line. If n is 2, clear entire line. Cursor position does not
 	// change.
-	fmt.Fprintf(s.Writer, "\r\033[K")
+	// \033[F - Go to the beginning of previous line
+	eraseCodeString := strings.Builder{}
+	// current position is at the end of the last printed line. Start by erasing current line
+	eraseCodeString.WriteString("\r\033[K") // start by erasing current line
+	for i := 1; i < numberOfLinesToErase; i++ {
+		// For each additional lines, go up one line and erase it.
+		eraseCodeString.WriteString("\033[F\033[K")
+	}
+	fmt.Fprintf(s.Writer, eraseCodeString.String())
 	s.lastOutputPlain = ""
 }
 
@@ -472,4 +484,30 @@ func GenerateNumberSequence(length int) []string {
 // isRunningInTerminal check if stdout file descriptor is terminal
 func isRunningInTerminal() bool {
 	return isatty.IsTerminal(os.Stdout.Fd())
+}
+
+func computeNumberOfLinesNeededToPrintString(linePrinted string) int {
+	terminalWidth := math.MaxInt // assume infinity by default to keep behaviour consistent with what we had before
+	if term.IsTerminal(0) {
+		if width, _, err := term.GetSize(0); err == nil {
+			terminalWidth = width
+		}
+	}
+	return computeNumberOfLinesNeededToPrintStringInternal(linePrinted, terminalWidth)
+}
+
+func computeNumberOfLinesNeededToPrintStringInternal(linePrinted string, maxLineWidth int) int {
+	if linePrinted == "" {
+		// empty string will necessarily take one line
+		return 1
+	}
+	idxOfNewline := strings.Index(linePrinted, "\n")
+	if idxOfNewline < 0 {
+		// we use utf8.RunCountInString() in place of len() because the string contains "complex" unicode chars that
+		// might be represented by multiple individual bytes (typically spinner char)
+		return int(math.Ceil(float64(utf8.RuneCountInString(linePrinted)) / float64(maxLineWidth)))
+	} else {
+		return computeNumberOfLinesNeededToPrintStringInternal(linePrinted[:idxOfNewline], maxLineWidth) +
+			computeNumberOfLinesNeededToPrintStringInternal(linePrinted[idxOfNewline+1:], maxLineWidth)
+	}
 }

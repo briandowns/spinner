@@ -20,6 +20,7 @@ import (
 	"io/ioutil"
 	"os"
 	"reflect"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -278,6 +279,60 @@ func TestColorError(t *testing.T) {
 func TestWithWriter(t *testing.T) {
 	s := New(CharSets[9], time.Millisecond*400, WithWriter(ioutil.Discard))
 	_ = s
+}
+
+func TestComputeNumberOfLinesNeededToPrintStringInternal_SingleLine(t *testing.T) {
+	line := "Hello world"
+	result := computeNumberOfLinesNeededToPrintStringInternal(line, 50)
+	expectedResult := 1
+	if result != expectedResult {
+		t.Errorf("Line '%s' shoud be printed on '%d' line, got '%d'", line, expectedResult, result)
+	}
+}
+
+func TestComputeNumberOfLinesNeededToPrintStringInternal_MultiLine(t *testing.T) {
+	line := "Hello\n world"
+	result := computeNumberOfLinesNeededToPrintStringInternal(line, 50)
+	expectedResult := 2
+	if result != expectedResult {
+		t.Errorf("Line '%s' shoud be printed on '%d' lines, got '%d'", line, expectedResult, result)
+	}
+}
+
+func TestComputeNumberOfLinesPrinted_LongString(t *testing.T) {
+	line := "Hello world! I am a super long string that will be printed in 2 lines"
+	result := computeNumberOfLinesNeededToPrintStringInternal(line, 50)
+	expectedResult := 2
+	if result != expectedResult {
+		t.Errorf("Line '%s' shoud be printed on '%d' lines, got '%d'", line, expectedResult, result)
+	}
+}
+
+func TestComputeNumberOfLinesNeededToPrintStringInternal_LongStringWithNewlines(t *testing.T) {
+	line := "Hello world!\nI am a super long string that will be printed in 2 lines.\nAnother new line"
+	result := computeNumberOfLinesNeededToPrintStringInternal(line, 50)
+	expectedResult := 4
+	if result != expectedResult {
+		t.Errorf("Line '%s' shoud be printed on '%d' lines, got '%d'", line, expectedResult, result)
+	}
+}
+
+func TestComputeNumberOfLinesNeededToPrintStringInternal_NewlineCharAtTheEnd(t *testing.T) {
+	line := "Hello world!\n"
+	result := computeNumberOfLinesNeededToPrintStringInternal(line, 50)
+	expectedResult := 2
+	if result != expectedResult {
+		t.Errorf("Line '%s' shoud be printed on '%d' lines, got '%d'", line, expectedResult, result)
+	}
+}
+
+func TestComputeNumberOfLinesNeededToPrintStringInternal_StringExactlyTheSizeOfTheScreen(t *testing.T) {
+	line := strings.Repeat("a", 50)
+	result := computeNumberOfLinesNeededToPrintStringInternal(line, 50)
+	expectedResult := 1
+	if result != expectedResult {
+		t.Errorf("Line '%s' shoud be printed on '%d' lines, got '%d'", line, expectedResult, result)
+	}
 }
 
 /*
