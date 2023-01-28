@@ -281,57 +281,40 @@ func TestWithWriter(t *testing.T) {
 	_ = s
 }
 
-func TestComputeNumberOfLinesNeededToPrintStringInternal_SingleLine(t *testing.T) {
-	line := "Hello world"
-	result := computeNumberOfLinesNeededToPrintStringInternal(line, 50)
-	expectedResult := 1
-	if result != expectedResult {
-		t.Errorf("Line '%s' shoud be printed on '%d' line, got '%d'", line, expectedResult, result)
+func TestComputeNumberOfLinesNeededToPrintStringInternal(t *testing.T) {
+	tests := []struct {
+		description   string
+		expectedCount int
+		printedLine   string
+		maxLineWidth  int
+	}{
+		{"BlankLine", 1, "", 50},
+		{"SingleLine", 1, "Hello world", 50},
+		{"SingleLineANSI", 1, "Hello \x1b[36mworld\x1b[0m", 20},
+		{"MultiLine", 2, "Hello\n world", 50},
+		{"MultiLineANSI", 2, "Hello\n \x1b[1;36mworld\x1b[0m", 20},
+		{"LongString", 2, "Hello world! I am a super long string that will be printed in 2 lines", 50},
+		{"LongStringWithNewlines", 4, "Hello world!\nI am a super long string that will be printed in 2 lines.\nAnother new line", 50},
+		{"NewlineCharAtStart", 2, "\nHello world!", 50},
+		{"NewlineCharAtStartANSI", 2, "\n\x1b[36mHello\x1b[0m world!", 50},
+		{"NewlineCharAtStartANSIFlipped", 2, "\x1b[36m\nHello\x1b[0m world!", 50},
+		{"MultipleNewlineCharAtStart", 4, "\n\n\nHello world!", 50},
+		{"NewlineCharAtEnd", 2, "Hello world!\n", 50},
+		{"NewlineCharAtEndANSI", 2, "Hello \x1b[36mworld!\x1b[0m\n", 50},
+		{"NewlineCharAtEndANSIFlipped", 2, "Hello \x1b[36mworld!\n\x1b[0m", 50},
+		{"StringExactlySizeOfScreen", 1, strings.Repeat("a", 50), 50},
+		{"StringExactlySizeOfScreenANSI", 1, "\x1b[36m" + strings.Repeat("a", 50), 50},
+		{"StringOneGreaterThanSizeOfScreen", 2, strings.Repeat("a", 51), 50},
 	}
-}
 
-func TestComputeNumberOfLinesNeededToPrintStringInternal_MultiLine(t *testing.T) {
-	line := "Hello\n world"
-	result := computeNumberOfLinesNeededToPrintStringInternal(line, 50)
-	expectedResult := 2
-	if result != expectedResult {
-		t.Errorf("Line '%s' shoud be printed on '%d' lines, got '%d'", line, expectedResult, result)
-	}
-}
-
-func TestComputeNumberOfLinesPrinted_LongString(t *testing.T) {
-	line := "Hello world! I am a super long string that will be printed in 2 lines"
-	result := computeNumberOfLinesNeededToPrintStringInternal(line, 50)
-	expectedResult := 2
-	if result != expectedResult {
-		t.Errorf("Line '%s' shoud be printed on '%d' lines, got '%d'", line, expectedResult, result)
-	}
-}
-
-func TestComputeNumberOfLinesNeededToPrintStringInternal_LongStringWithNewlines(t *testing.T) {
-	line := "Hello world!\nI am a super long string that will be printed in 2 lines.\nAnother new line"
-	result := computeNumberOfLinesNeededToPrintStringInternal(line, 50)
-	expectedResult := 4
-	if result != expectedResult {
-		t.Errorf("Line '%s' shoud be printed on '%d' lines, got '%d'", line, expectedResult, result)
-	}
-}
-
-func TestComputeNumberOfLinesNeededToPrintStringInternal_NewlineCharAtTheEnd(t *testing.T) {
-	line := "Hello world!\n"
-	result := computeNumberOfLinesNeededToPrintStringInternal(line, 50)
-	expectedResult := 2
-	if result != expectedResult {
-		t.Errorf("Line '%s' shoud be printed on '%d' lines, got '%d'", line, expectedResult, result)
-	}
-}
-
-func TestComputeNumberOfLinesNeededToPrintStringInternal_StringExactlyTheSizeOfTheScreen(t *testing.T) {
-	line := strings.Repeat("a", 50)
-	result := computeNumberOfLinesNeededToPrintStringInternal(line, 50)
-	expectedResult := 1
-	if result != expectedResult {
-		t.Errorf("Line '%s' shoud be printed on '%d' lines, got '%d'", line, expectedResult, result)
+	for _, test := range tests {
+		result := computeNumberOfLinesNeededToPrintStringInternal(test.printedLine,
+			test.maxLineWidth)
+		if result != test.expectedCount {
+			// Output error, resetting leftover ANSI sequences
+			t.Errorf("%s: Line '%s\x1b[0m' shoud be printed on '%d' line, got '%d'",
+				test.description, test.printedLine, test.expectedCount, result)
+		}
 	}
 }
 
