@@ -496,18 +496,43 @@ func computeNumberOfLinesNeededToPrintString(linePrinted string) int {
 	return computeNumberOfLinesNeededToPrintStringInternal(linePrinted, terminalWidth)
 }
 
+// isAnsiMarker returns if a rune denotes the start of an ANSI sequence
+func isAnsiMarker(r rune) bool {
+	return r == '\x1b'
+}
+
+// isAnsiTerminator returns if a rune denotes the end of an ANSI sequence
+func isAnsiTerminator(r rune) bool {
+	return (r >= 0x40 && r <= 0x5a) || (r == 0x5e) || (r >= 0x60 && r <= 0x7e)
+}
+
+// computeLineWidth returns the displayed width of a line
+func computeLineWidth(line string) int {
+	width := 0
+	ansi := false
+
+	for _, r := range []rune(line) {
+		// increase width only when outside of ANSI escape sequences
+		if ansi || isAnsiMarker(r) {
+			ansi = !isAnsiTerminator(r)
+		} else {
+			width += utf8.RuneLen(r)
+		}
+	}
+
+	return width
+}
+
 func computeNumberOfLinesNeededToPrintStringInternal(linePrinted string, maxLineWidth int) int {
-	if linePrinted == "" {
-		// empty string will necessarily take one line
-		return 1
+	lineCount := 0
+	for _, line := range strings.Split(linePrinted, "\n") {
+		lineCount += 1
+
+		lineWidth := computeLineWidth(line)
+		if lineWidth > maxLineWidth {
+			lineCount += int(float64(lineWidth) / float64(maxLineWidth))
+		}
 	}
-	idxOfNewline := strings.Index(linePrinted, "\n")
-	if idxOfNewline < 0 {
-		// we use utf8.RunCountInString() in place of len() because the string contains "complex" unicode chars that
-		// might be represented by multiple individual bytes (typically spinner char)
-		return int(math.Ceil(float64(utf8.RuneCountInString(linePrinted)) / float64(maxLineWidth)))
-	} else {
-		return computeNumberOfLinesNeededToPrintStringInternal(linePrinted[:idxOfNewline], maxLineWidth) +
-			computeNumberOfLinesNeededToPrintStringInternal(linePrinted[idxOfNewline+1:], maxLineWidth)
-	}
+
+	return lineCount
 }
