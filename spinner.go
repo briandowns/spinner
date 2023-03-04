@@ -295,7 +295,7 @@ func (s *Spinner) Disable() {
 // Start will start the indicator.
 func (s *Spinner) Start() {
 	s.mu.Lock()
-	if s.active || !s.enabled || !isRunningInTerminal() {
+	if s.active || !s.enabled || !isRunningInTerminal(s) {
 		s.mu.Unlock()
 		return
 	}
@@ -481,9 +481,9 @@ func GenerateNumberSequence(length int) []string {
 	return numSeq
 }
 
-// isRunningInTerminal check if stdout file descriptor is terminal
-func isRunningInTerminal() bool {
-	return isatty.IsTerminal(os.Stdout.Fd())
+// isRunningInTerminal check if the writer file descriptor is a terminal
+func isRunningInTerminal(s *Spinner) bool {
+	return isatty.IsTerminal(s.Writer.Fd())
 }
 
 func computeNumberOfLinesNeededToPrintString(linePrinted string) int {
