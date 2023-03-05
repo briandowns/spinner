@@ -187,6 +187,7 @@ type Spinner struct {
 	LastOutput      string                        // last character(set) written with colors
 	color           func(a ...interface{}) string // default color is white
 	Writer          io.Writer                     // to make testing better, exported so users have access. Use `WithWriter` to update after initialization.
+	WriterFile      *os.File                      // writer as file to allow terminal check
 	active          bool                          // active holds the state of the spinner
 	enabled         bool                          // indicates whether the spinner is enabled or not
 	stopChan        chan struct{}                 // stopChan is a channel used to stop the indicator
@@ -203,6 +204,7 @@ func New(cs []string, d time.Duration, options ...Option) *Spinner {
 		color:      color.New(color.FgWhite).SprintFunc(),
 		mu:         &sync.RWMutex{},
 		Writer:     color.Output,
+		WriterFile: os.Stdout, // matches color.Output
 		stopChan:   make(chan struct{}, 1),
 		active:     false,
 		enabled:    true,
@@ -261,11 +263,28 @@ func WithHiddenCursor(hideCursor bool) Option {
 
 // WithWriter adds the given writer to the spinner. This
 // function should be favored over directly assigning to
-// the struct value.
+// the struct value. Assumes it is not working on a terminal
+// since it cannot determine from io.Writer. Use WithWriterFile
+// to support terminal checks
 func WithWriter(w io.Writer) Option {
 	return func(s *Spinner) {
 		s.mu.Lock()
 		s.Writer = w
+		s.WriterFile = nil // not a terminal because we can't determine if it is
+		s.mu.Unlock()
+	}
+}
+
+// WithWriterFile adds the given writer to the spinner. This
+// function should be favored over directly assigning to
+// the struct value. Unlike WithWriter, this function allows
+// us to check if displaying to a terminal (enable spinning) or
+// not (disable spinning). Supersedes WithWriter()
+func WithWriterFile(f *os.File) Option {
+	return func(s *Spinner) {
+		s.mu.Lock()
+		s.Writer = f     // io.Writer for actual writing
+		s.WriterFile = f // file used only for terminal check
 		s.mu.Unlock()
 	}
 }
@@ -483,7 +502,7 @@ func GenerateNumberSequence(length int) []string {
 
 // isRunningInTerminal check if the writer file descriptor is a terminal
 func isRunningInTerminal(s *Spinner) bool {
-	return isatty.IsTerminal(s.Writer.Fd())
+	return isatty.IsTerminal(s.WriterFile.Fd())
 }
 
 func computeNumberOfLinesNeededToPrintString(linePrinted string) int {
