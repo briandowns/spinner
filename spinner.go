@@ -270,7 +270,7 @@ func WithWriter(w io.Writer) Option {
 	return func(s *Spinner) {
 		s.mu.Lock()
 		s.Writer = w
-		s.WriterFile = nil // not a terminal because we can't determine if it is
+		s.WriterFile = os.Stdout // emulate previous behavior for terminal check
 		s.mu.Unlock()
 	}
 }
