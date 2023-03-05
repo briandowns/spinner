@@ -265,7 +265,7 @@ func WithHiddenCursor(hideCursor bool) Option {
 // function should be favored over directly assigning to
 // the struct value. Assumes it is not working on a terminal
 // since it cannot determine from io.Writer. Use WithWriterFile
-// to support terminal checks
+// to support terminal checks.
 func WithWriter(w io.Writer) Option {
 	return func(s *Spinner) {
 		s.mu.Lock()
