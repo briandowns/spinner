@@ -19,9 +19,11 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/signal"
 	"reflect"
 	"strings"
 	"sync"
+	"syscall"
 	"testing"
 	"time"
 
@@ -315,6 +317,69 @@ func TestComputeNumberOfLinesNeededToPrintStringInternal(t *testing.T) {
 			t.Errorf("%s: Line '%s\x1b[0m' shoud be printed on '%d' line, got '%d'",
 				test.description, test.printedLine, test.expectedCount, result)
 		}
+	}
+}
+
+// TestUnhideCursor verifies the cursor is unhidden before exiting
+func TestUnhideCursor(t *testing.T) {
+	tests := map[string]struct {
+		interrupt os.Signal
+	}{
+		"the spinner stops normally": {},
+		"the terminal hangs up": {
+			interrupt: syscall.SIGHUP,
+		},
+		"the process is interrupted": {
+			interrupt: syscall.SIGINT,
+		},
+		"the process is terminated": {
+			interrupt: syscall.SIGTERM,
+		},
+		"the process is quit": {
+			interrupt: syscall.SIGQUIT,
+		},
+	}
+
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			s, out := withOutput(CharSets[1], 100*time.Millisecond)
+			interrupts := make(chan os.Signal, 1)
+			signal.Notify(interrupts, syscall.SIGHUP, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM)
+			defer signal.Stop(interrupts)
+			defer close(interrupts)
+
+			s.Start()
+			time.Sleep(240 * time.Millisecond)
+
+			eraser := bytes.Buffer{}
+			if test.interrupt != nil {
+				s.stopChan <- test.interrupt
+				if exit := <-interrupts; exit != test.interrupt {
+					t.Errorf("Unexpected signal was returned=%v", exit)
+					close(s.stopChan)
+				}
+			} else {
+				preStopOutput := s.lastOutputPlain
+				s.Stop()
+				s.Writer = &eraser
+				s.lastOutputPlain = preStopOutput
+				s.erase()
+			}
+
+			if s.Active() {
+				t.Errorf("Cursor is still active after stopping\n")
+			}
+			if !strings.HasPrefix(out.String(), "\033[?25l") {
+				t.Errorf("Output does not start by hiding the cursor\n")
+				t.Logf("\tWanted: '%q'\n", bytes.NewBufferString("\033[?25l"+eraser.String()))
+				t.Logf("\tFound: '%q'\n", out)
+			}
+			if !strings.HasSuffix(out.String(), "\033[?25h"+eraser.String()) {
+				t.Errorf("Output does not reset the cursor correctly\n")
+				t.Logf("\tWanted: '%q'\n", bytes.NewBufferString("\033[?25h"+eraser.String()))
+				t.Logf("\tFound: '%q'\n", out)
+			}
+		})
 	}
 }
 
