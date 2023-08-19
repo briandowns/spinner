@@ -21,10 +21,12 @@ import (
 	"io"
 	"math"
 	"os"
+	"os/signal"
 	"runtime"
 	"strconv"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 	"unicode/utf8"
 
@@ -190,7 +192,7 @@ type Spinner struct {
 	WriterFile      *os.File                      // writer as file to allow terminal check
 	active          bool                          // active holds the state of the spinner
 	enabled         bool                          // indicates whether the spinner is enabled or not
-	stopChan        chan struct{}                 // stopChan is a channel used to stop the indicator
+	stopChan        chan os.Signal                // stopChan is a channel used to stop the indicator
 	HideCursor      bool                          // hideCursor determines if the cursor is visible
 	PreUpdate       func(s *Spinner)              // will be triggered before every spinner update
 	PostUpdate      func(s *Spinner)              // will be triggered after every spinner update
@@ -205,7 +207,7 @@ func New(cs []string, d time.Duration, options ...Option) *Spinner {
 		mu:         &sync.RWMutex{},
 		Writer:     color.Output,
 		WriterFile: os.Stdout, // matches color.Output
-		stopChan:   make(chan struct{}, 1),
+		stopChan:   make(chan os.Signal, 1),
 		active:     false,
 		enabled:    true,
 		HideCursor: true,
@@ -328,6 +330,15 @@ func (s *Spinner) Start() {
 		color.NoColor = true
 	}
 
+	interrupts := []os.Signal{
+		syscall.Signal(0x0),
+		syscall.SIGHUP,
+		syscall.SIGINT,
+		syscall.SIGQUIT,
+		syscall.SIGTERM,
+	}
+	signal.Notify(s.stopChan, interrupts...)
+
 	s.active = true
 	s.mu.Unlock()
 
@@ -335,7 +346,17 @@ func (s *Spinner) Start() {
 		for {
 			for i := 0; i < len(s.chars); i++ {
 				select {
-				case <-s.stopChan:
+				case sig := <-s.stopChan:
+					s.mu.Lock()
+					defer s.mu.Unlock()
+					if sig != syscall.Signal(0x0) {
+						s.active = false
+						if s.HideCursor && !isWindowsTerminalOnWindows {
+							fmt.Fprint(s.Writer, "\033[?25h")
+						}
+					}
+					signal.Stop(s.stopChan)
+					syscall.Kill(os.Getpid(), sig.(syscall.Signal))
 					return
 				default:
 					s.mu.Lock()
@@ -397,7 +418,8 @@ func (s *Spinner) Stop() {
 				fmt.Fprint(s.Writer, s.FinalMSG)
 			}
 		}
-		s.stopChan <- struct{}{}
+		s.stopChan <- syscall.Signal(0x0)
+		signal.Stop(s.stopChan)
 	}
 }
 
