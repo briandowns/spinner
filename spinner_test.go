@@ -17,7 +17,7 @@ package spinner
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"reflect"
 	"strings"
@@ -277,7 +277,7 @@ func TestColorError(t *testing.T) {
 }
 
 func TestWithWriter(t *testing.T) {
-	s := New(CharSets[9], time.Millisecond*400, WithWriter(ioutil.Discard))
+	s := New(CharSets[9], time.Millisecond*400, WithWriter(io.Discard))
 	_ = s
 }
 
