@@ -332,11 +332,11 @@ func TestUnhideCursor(t *testing.T) {
 		"the process is interrupted": {
 			interrupt: syscall.SIGINT,
 		},
-		"the process is terminated": {
-			interrupt: syscall.SIGTERM,
-		},
 		"the process is quit": {
 			interrupt: syscall.SIGQUIT,
+		},
+		"the process is terminated": {
+			interrupt: syscall.SIGTERM,
 		},
 	}
 
@@ -371,7 +371,7 @@ func TestUnhideCursor(t *testing.T) {
 			}
 			if !strings.HasPrefix(out.String(), "\033[?25l") {
 				t.Errorf("Output does not start by hiding the cursor\n")
-				t.Logf("\tWanted: '%q'\n", bytes.NewBufferString("\033[?25l"+eraser.String()))
+				t.Logf("\tWanted: '%q'\n", bytes.NewBufferString("\033[?25l"))
 				t.Logf("\tFound: '%q'\n", out)
 			}
 			if !strings.HasSuffix(out.String(), "\033[?25h"+eraser.String()) {
