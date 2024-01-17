@@ -25,7 +25,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mattn/go-isatty"
+	"golang.org/x/term"
 )
 
 const baseWait = 3
@@ -73,7 +73,7 @@ func TestStart(t *testing.T) {
 
 // TestActive will verify we can tell when a spinner is running
 func TestActive(t *testing.T) {
-	if !isatty.IsTerminal(os.Stdout.Fd()) {
+	if fd := os.Stdout.Fd(); !term.IsTerminal(int(fd)) {
 		t.Log("not running in a terminal")
 		return
 	}
@@ -157,7 +157,7 @@ func TestDisable(t *testing.T) {
 
 // TestHookFunctions will verify that hook functions works as expected
 func TestHookFunctions(t *testing.T) {
-	if !isatty.IsTerminal(os.Stdout.Fd()) {
+	if fd := os.Stdout.Fd(); !term.IsTerminal(int(fd)) {
 		t.Log("not running in a termian")
 		return
 	}
