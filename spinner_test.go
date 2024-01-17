@@ -158,7 +158,7 @@ func TestDisable(t *testing.T) {
 // TestHookFunctions will verify that hook functions works as expected
 func TestHookFunctions(t *testing.T) {
 	if fd := os.Stdout.Fd(); !term.IsTerminal(int(fd)) {
-		t.Log("not running in a termian")
+		t.Log("not running in a terminal")
 		return
 	}
 	s := New(CharSets[4], 50*time.Millisecond)
