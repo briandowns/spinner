@@ -29,7 +29,6 @@ import (
 	"unicode/utf8"
 
 	"github.com/fatih/color"
-	"github.com/mattn/go-isatty"
 	"golang.org/x/term"
 )
 
@@ -502,7 +501,8 @@ func GenerateNumberSequence(length int) []string {
 
 // isRunningInTerminal check if the writer file descriptor is a terminal
 func isRunningInTerminal(s *Spinner) bool {
-	return isatty.IsTerminal(s.WriterFile.Fd())
+	fd := s.WriterFile.Fd()
+	return term.IsTerminal(int(fd))
 }
 
 func computeNumberOfLinesNeededToPrintString(linePrinted string) int {
