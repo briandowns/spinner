@@ -221,14 +221,6 @@ func New(cs []string, d time.Duration, options ...Option) *Spinner {
 // a given configuration.
 type Option func(*Spinner)
 
-// Options contains fields to configure the spinner.
-type Options struct {
-	Color      string
-	Suffix     string
-	FinalMSG   string
-	HideCursor bool
-}
-
 // WithColor adds the given color to the spinner.
 func WithColor(color string) Option {
 	return func(s *Spinner) {
