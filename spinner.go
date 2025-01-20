@@ -475,7 +475,7 @@ func (s *Spinner) erase() {
 		// For each additional lines, go up one line and erase it.
 		eraseCodeString.WriteString("\033[F\033[K")
 	}
-	fmt.Fprintf(s.Writer, eraseCodeString.String())
+	fmt.Fprint(s.Writer, eraseCodeString.String())
 	s.lastOutputPlain = ""
 }
 
