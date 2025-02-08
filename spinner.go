@@ -329,16 +329,8 @@ func (s *Spinner) Start() {
 		color.NoColor = true
 	}
 
-	interrupts := []os.Signal{
-		syscall.Signal(0x0),
-		syscall.SIGHUP,
-		syscall.SIGINT,
-		syscall.SIGQUIT,
-		syscall.SIGTERM,
-	}
-	signal.Notify(s.stopChan, interrupts...)
-
 	s.active = true
+	signal.Notify(s.stopChan, syscall.Signal(0x0), os.Interrupt)
 	s.mu.Unlock()
 
 	go func() {
@@ -353,9 +345,14 @@ func (s *Spinner) Start() {
 						if s.HideCursor && !isWindowsTerminalOnWindows {
 							fmt.Fprint(s.Writer, "\033[?25h")
 						}
+						signal.Stop(s.stopChan)
+						if !isWindows {
+							process, _ := os.FindProcess(os.Getpid())
+							_ = process.Signal(sig)
+						}
+					} else {
+						signal.Stop(s.stopChan)
 					}
-					signal.Stop(s.stopChan)
-					syscall.Kill(os.Getpid(), sig.(syscall.Signal))
 					return
 				default:
 					s.mu.Lock()

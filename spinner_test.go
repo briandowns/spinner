@@ -326,17 +326,8 @@ func TestUnhideCursor(t *testing.T) {
 		interrupt os.Signal
 	}{
 		"the spinner stops normally": {},
-		"the terminal hangs up": {
-			interrupt: syscall.SIGHUP,
-		},
 		"the process is interrupted": {
-			interrupt: syscall.SIGINT,
-		},
-		"the process is quit": {
-			interrupt: syscall.SIGQUIT,
-		},
-		"the process is terminated": {
-			interrupt: syscall.SIGTERM,
+			interrupt: os.Interrupt,
 		},
 	}
 
@@ -344,7 +335,7 @@ func TestUnhideCursor(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			s, out := withOutput(CharSets[1], 100*time.Millisecond)
 			interrupts := make(chan os.Signal, 1)
-			signal.Notify(interrupts, syscall.SIGHUP, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM)
+			signal.Notify(interrupts, syscall.Signal(0x0), os.Interrupt)
 			defer signal.Stop(interrupts)
 			defer close(interrupts)
 
