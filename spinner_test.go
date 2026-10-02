@@ -22,6 +22,7 @@ import (
 	"reflect"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -131,6 +132,51 @@ func TestRestart(t *testing.T) {
 	if !bytes.Equal(first, second) {
 		t.Errorf("expected restart output to match initial output. got=%q want=%q", first, second)
 	}
+}
+
+// TestRapidStopRestart tests that calling Stop and Restart rapidly in sequence
+// and concurrently does not deadlock or block subsequent Start/Restart goroutines.
+func TestRapidStopRestart(t *testing.T) {
+	s := New(CharSets[1], 2*time.Millisecond)
+	s.Writer = ioutil.Discard
+	if f, err := os.OpenFile("/dev/ptmx", os.O_RDWR, 0); err == nil {
+		defer f.Close()
+		s.WriterFile = f
+	}
+
+	var updates int32
+	s.PreUpdate = func(_ *Spinner) {
+		atomic.AddInt32(&updates, 1)
+	}
+
+	// Rapid sequential Stop and Restart (Issue #101 regression)
+	s.Start()
+	for i := 0; i < 50; i++ {
+		s.Stop()
+		s.Restart()
+		time.Sleep(5 * time.Millisecond)
+	}
+	s.Stop()
+
+	if term.IsTerminal(int(s.WriterFile.Fd())) && atomic.LoadInt32(&updates) == 0 {
+		t.Error("expected spinner to have performed updates across rapid restarts")
+	}
+	t.Logf("Total updates during rapid restarts: %d", atomic.LoadInt32(&updates))
+
+	// Rapid concurrent Stop and Restart under race detector
+	var wg sync.WaitGroup
+	for i := 0; i < 5; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for j := 0; j < 20; j++ {
+				s.Restart()
+				time.Sleep(time.Millisecond)
+				s.Stop()
+			}
+		}()
+	}
+	wg.Wait()
 }
 
 func TestDisable(t *testing.T) {
