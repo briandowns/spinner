@@ -91,6 +91,50 @@ func TestActive(t *testing.T) {
 	}
 }
 
+// TestActiveRace tests concurrent calls to Active(), Start(), and Stop()
+func TestActiveRace(t *testing.T) {
+	termFile := os.Stdout
+	if !term.IsTerminal(int(termFile.Fd())) {
+		f, err := os.OpenFile("/dev/ptmx", os.O_RDWR, 0)
+		if err != nil {
+			t.Skip("not running in a terminal")
+		}
+		defer f.Close()
+		termFile = f
+	}
+
+	s := New(CharSets[1], 10*time.Millisecond)
+	s.WriterFile = termFile
+	s.Writer = ioutil.Discard
+
+	var wg sync.WaitGroup
+	stop := make(chan struct{})
+
+	// Goroutine calling Active() concurrently
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for {
+			select {
+			case <-stop:
+				return
+			default:
+				_ = s.Active()
+			}
+		}
+	}()
+
+	for i := 0; i < 20; i++ {
+		s.Start()
+		time.Sleep(5 * time.Millisecond)
+		s.Stop()
+		time.Sleep(5 * time.Millisecond)
+	}
+
+	close(stop)
+	wg.Wait()
+}
+
 // TestStop will verify a spinner can be stopped
 func TestStop(t *testing.T) {
 	p, out := withOutput(CharSets[14], 100*time.Millisecond)
