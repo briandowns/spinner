@@ -327,6 +327,12 @@ func (s *Spinner) Start() {
 		color.NoColor = true
 	}
 
+	// Drain any pending stop signal
+	select {
+	case <-s.stopChan:
+	default:
+	}
+
 	s.active = true
 	s.mu.Unlock()
 
@@ -396,7 +402,10 @@ func (s *Spinner) Stop() {
 				fmt.Fprint(s.Writer, s.FinalMSG)
 			}
 		}
-		s.stopChan <- struct{}{}
+		select {
+		case s.stopChan <- struct{}{}:
+		default:
+		}
 	}
 }
 
