@@ -327,6 +327,156 @@ func TestWithWriter(t *testing.T) {
 	_ = s
 }
 
+func TestWithNewLine(t *testing.T) {
+	s := New(CharSets[9], 100*time.Millisecond, WithNewLine(true))
+	if !s.NewLine {
+		t.Error("expected NewLine to be true")
+	}
+
+	var buf syncBuffer
+	s.Writer = &buf
+	if f, err := os.OpenFile("/dev/ptmx", os.O_RDWR, 0); err == nil {
+		defer f.Close()
+		s.WriterFile = f
+	}
+
+	if !term.IsTerminal(int(s.WriterFile.Fd())) {
+		t.Log("not running in a terminal, skipping Start execution")
+		return
+	}
+
+	buf.WriteString("previous line output")
+	s.Start()
+	time.Sleep(150 * time.Millisecond)
+	s.Stop()
+
+	output := buf.String()
+	expectedPrefix := "previous line output\n"
+	if !strings.HasPrefix(output, expectedPrefix) {
+		t.Errorf("expected output to start with %q, got %q", expectedPrefix, output)
+	}
+}
+
+func TestWithNoClear(t *testing.T) {
+	s := New(CharSets[9], 100*time.Millisecond, WithNoClear(true))
+	if !s.NoClear {
+		t.Error("expected NoClear to be true")
+	}
+
+	var buf syncBuffer
+	s.Writer = &buf
+	s.FinalMSG = "completed\n"
+
+	if f, err := os.OpenFile("/dev/ptmx", os.O_RDWR, 0); err == nil {
+		defer f.Close()
+		s.WriterFile = f
+	}
+
+	if !term.IsTerminal(int(s.WriterFile.Fd())) {
+		t.Log("not running in a terminal, skipping Start execution")
+		return
+	}
+
+	buf.WriteString("task in progress: ")
+	s.Start()
+	time.Sleep(150 * time.Millisecond)
+	s.Stop()
+
+	output := buf.String()
+	if !strings.HasPrefix(output, "task in progress: ") {
+		t.Errorf("expected initial text to be preserved, got %q", output)
+	}
+	if strings.Contains(output, "\r") {
+		t.Errorf("expected output to not contain carriage returns, got %q", output)
+	}
+	if !strings.HasSuffix(output, "completed\n") {
+		t.Errorf("expected output to end with final message, got %q", output)
+	}
+}
+
+func TestNoClearWithPrefixAndSuffix(t *testing.T) {
+	s := New(CharSets[9], 50*time.Millisecond, WithNoClear(true))
+	s.Prefix = "step: "
+	s.Suffix = " running"
+
+	var buf syncBuffer
+	s.Writer = &buf
+
+	if f, err := os.OpenFile("/dev/ptmx", os.O_RDWR, 0); err == nil {
+		defer f.Close()
+		s.WriterFile = f
+	}
+
+	if !term.IsTerminal(int(s.WriterFile.Fd())) {
+		t.Log("not running in a terminal, skipping Start execution")
+		return
+	}
+
+	s.Start()
+	time.Sleep(120 * time.Millisecond)
+	s.Stop()
+
+	output := buf.String()
+	if strings.Contains(output, "\r") {
+		t.Errorf("expected output without carriage return, got %q", output)
+	}
+	if !strings.Contains(output, "step: ") {
+		t.Errorf("expected output to contain prefix, got %q", output)
+	}
+	if !strings.Contains(output, " running") {
+		t.Errorf("expected output to contain suffix, got %q", output)
+	}
+}
+
+func TestEraseNoClear(t *testing.T) {
+	s := New(CharSets[9], 100*time.Millisecond, WithNoClear(true))
+	var buf bytes.Buffer
+	s.Writer = &buf
+
+	// When lastOutputPlain is empty, erase should write nothing
+	s.Lock()
+	s.lastOutputPlain = ""
+	s.erase()
+	s.Unlock()
+	if buf.Len() != 0 {
+		t.Errorf("expected no bytes written when lastOutputPlain is empty, got %d", buf.Len())
+	}
+
+	// When lastOutputPlain contains characters, erase should use backspaces
+	buf.Reset()
+	s.Lock()
+	s.lastOutputPlain = "abc"
+	s.erase()
+	s.Unlock()
+
+	expectedANSI := "\b\b\b\033[K"
+	if buf.String() != expectedANSI {
+		t.Errorf("expected erase to write %q, got %q", expectedANSI, buf.String())
+	}
+	if s.lastOutputPlain != "" {
+		t.Errorf("expected lastOutputPlain to be cleared, got %q", s.lastOutputPlain)
+	}
+}
+
+func TestEraseDefault(t *testing.T) {
+	s := New(CharSets[9], 100*time.Millisecond)
+	var buf bytes.Buffer
+	s.Writer = &buf
+
+	s.Lock()
+	s.lastOutputPlain = "abc"
+	s.erase()
+	s.Unlock()
+
+	expectedANSI := "\r\033[K"
+	if buf.String() != expectedANSI {
+		t.Errorf("expected erase to write %q, got %q", expectedANSI, buf.String())
+	}
+	if s.lastOutputPlain != "" {
+		t.Errorf("expected lastOutputPlain to be cleared, got %q", s.lastOutputPlain)
+	}
+}
+
 func TestComputeNumberOfLinesNeededToPrintStringInternal(t *testing.T) {
 	tests := []struct {
 		description   string
