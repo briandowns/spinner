@@ -290,6 +290,8 @@ func WithWriterFile(f *os.File) Option {
 
 // Active will return whether or not the spinner is currently active.
 func (s *Spinner) Active() bool {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	return s.active
 }
 
