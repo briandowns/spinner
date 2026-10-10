@@ -193,6 +193,8 @@ type Spinner struct {
 	HideCursor      bool                          // hideCursor determines if the cursor is visible
 	PreUpdate       func(s *Spinner)              // will be triggered before every spinner update
 	PostUpdate      func(s *Spinner)              // will be triggered after every spinner update
+	NewLine         bool                          // NewLine determines if the spinner starts on a new line
+	NoClear         bool                          // NoClear determines if carriage returns and line clearing are skipped to preserve existing output
 }
 
 // New provides a pointer to an instance of Spinner with the supplied options.
@@ -227,6 +229,8 @@ type Options struct {
 	Suffix     string
 	FinalMSG   string
 	HideCursor bool
+	NewLine    bool
+	NoClear    bool
 }
 
 // WithColor adds the given color to the spinner.
@@ -288,6 +292,20 @@ func WithWriterFile(f *os.File) Option {
 	}
 }
 
+// WithNewLine sets whether the spinner starts on a new line.
+func WithNewLine(newLine bool) Option {
+	return func(s *Spinner) {
+		s.NewLine = newLine
+	}
+}
+
+// WithNoClear sets whether the spinner skips carriage returns and line clearing to preserve existing line output.
+func WithNoClear(noClear bool) Option {
+	return func(s *Spinner) {
+		s.NoClear = noClear
+	}
+}
+
 // Active will return whether or not the spinner is currently active.
 func (s *Spinner) Active() bool {
 	return s.active
@@ -316,6 +334,9 @@ func (s *Spinner) Start() {
 	if s.active || !s.enabled || !isRunningInTerminal(s) {
 		s.mu.Unlock()
 		return
+	}
+	if s.NewLine {
+		fmt.Fprint(s.Writer, "\n")
 	}
 	if s.HideCursor && !isWindowsTerminalOnWindows {
 		// hides the cursor
@@ -348,7 +369,7 @@ func (s *Spinner) Start() {
 						s.mu.Unlock()
 						return
 					}
-					if !isWindowsTerminalOnWindows {
+					if !isWindowsTerminalOnWindows || s.NoClear {
 						s.erase()
 					}
 
@@ -357,16 +378,26 @@ func (s *Spinner) Start() {
 					}
 
 					var outColor string
-					if isWindows {
-						if s.Writer == os.Stderr {
-							outColor = fmt.Sprintf("\r%s%s%s", s.Prefix, s.chars[i], s.Suffix)
+					var outPlain string
+					if s.NoClear {
+						if isWindows && s.Writer == os.Stderr {
+							outColor = fmt.Sprintf("%s%s%s", s.Prefix, s.chars[i], s.Suffix)
+						} else {
+							outColor = fmt.Sprintf("%s%s%s", s.Prefix, s.color(s.chars[i]), s.Suffix)
+						}
+						outPlain = fmt.Sprintf("%s%s%s", s.Prefix, s.chars[i], s.Suffix)
+					} else {
+						if isWindows {
+							if s.Writer == os.Stderr {
+								outColor = fmt.Sprintf("\r%s%s%s", s.Prefix, s.chars[i], s.Suffix)
+							} else {
+								outColor = fmt.Sprintf("\r%s%s%s", s.Prefix, s.color(s.chars[i]), s.Suffix)
+							}
 						} else {
 							outColor = fmt.Sprintf("\r%s%s%s", s.Prefix, s.color(s.chars[i]), s.Suffix)
 						}
-					} else {
-						outColor = fmt.Sprintf("\r%s%s%s", s.Prefix, s.color(s.chars[i]), s.Suffix)
+						outPlain = fmt.Sprintf("\r%s%s%s", s.Prefix, s.chars[i], s.Suffix)
 					}
-					outPlain := fmt.Sprintf("\r%s%s%s", s.Prefix, s.chars[i], s.Suffix)
 					fmt.Fprint(s.Writer, outColor)
 					s.lastOutputPlain = outPlain
 					s.LastOutput = outColor
@@ -396,7 +427,7 @@ func (s *Spinner) Stop() {
 		}
 		s.erase()
 		if s.FinalMSG != "" {
-			if isWindowsTerminalOnWindows {
+			if isWindowsTerminalOnWindows && !s.NoClear {
 				fmt.Fprint(s.Writer, "\r", s.FinalMSG)
 			} else {
 				fmt.Fprint(s.Writer, s.FinalMSG)
@@ -460,6 +491,23 @@ func (s *Spinner) UpdateCharSet(cs []string) {
 // erase deletes written characters on the current line.
 // Caller must already hold s.lock.
 func (s *Spinner) erase() {
+	if s.NoClear {
+		if s.lastOutputPlain == "" {
+			return
+		}
+		n := utf8.RuneCountInString(s.lastOutputPlain)
+		if runtime.GOOS == "windows" && !isWindowsTerminalOnWindows {
+			clearString := strings.Repeat("\b", n) + strings.Repeat(" ", n) + strings.Repeat("\b", n)
+			fmt.Fprint(s.Writer, clearString)
+			s.lastOutputPlain = ""
+			return
+		}
+		clearString := strings.Repeat("\b", n) + "\033[K"
+		fmt.Fprint(s.Writer, clearString)
+		s.lastOutputPlain = ""
+		return
+	}
+
 	n := utf8.RuneCountInString(s.lastOutputPlain)
 	if runtime.GOOS == "windows" && !isWindowsTerminalOnWindows {
 		clearString := "\r" + strings.Repeat(" ", n) + "\r"
