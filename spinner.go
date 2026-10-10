@@ -552,13 +552,19 @@ func computeLineWidth(line string) int {
 }
 
 func computeNumberOfLinesNeededToPrintStringInternal(linePrinted string, maxLineWidth int) int {
+	if maxLineWidth <= 0 {
+		// Terminals can report a zero width before their size is set.
+		maxLineWidth = math.MaxInt
+	}
+
 	lineCount := 0
 	for _, line := range strings.Split(linePrinted, "\n") {
 		lineCount += 1
 
 		lineWidth := computeLineWidth(line)
 		if lineWidth > maxLineWidth {
-			lineCount += int(float64(lineWidth) / float64(maxLineWidth))
+			// A full last row wraps only when another character is printed.
+			lineCount += (lineWidth - 1) / maxLineWidth
 		}
 	}
 
