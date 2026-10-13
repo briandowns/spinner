@@ -369,6 +369,9 @@ func TestComputeNumberOfLinesNeededToPrintStringInternal(t *testing.T) {
 		{"UnknownWidthMultiline", 2, "abcd\nefgh", 0},
 		{"NegativeWidth", 1, "abcd", -1},
 		{"NegativeWidthMultiline", 2, "abcd\nefgh", -1},
+		{"MultiByteSpinnerCharFitsScreen", 1, "⠋ " + strings.Repeat("a", 48), 50},
+		{"MultiByteSuffixFitsScreen", 1, "| " + strings.Repeat("é", 48), 50},
+		{"MultiByteStringOneGreaterThanSizeOfScreen", 2, "⠋ " + strings.Repeat("a", 49), 50},
 	}
 
 	for _, test := range tests {

@@ -544,7 +544,9 @@ func computeLineWidth(line string) int {
 		if ansi || isAnsiMarker(r) {
 			ansi = !isAnsiTerminator(r)
 		} else {
-			width += utf8.RuneLen(r)
+			// count runes, not bytes: spinner frames such as braille dots are
+			// several bytes long but take a single column
+			width++
 		}
 	}
 
