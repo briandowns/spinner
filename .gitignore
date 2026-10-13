@@ -27,3 +27,5 @@ _testmain.go
 
 .idea
 *.iml
+config.bat
+node_modules
