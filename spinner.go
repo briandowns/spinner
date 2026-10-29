@@ -196,10 +196,11 @@ type Spinner struct {
 }
 
 // New provides a pointer to an instance of Spinner with the supplied options.
+// The character set is copied so other spinners and callers can use it independently.
 func New(cs []string, d time.Duration, options ...Option) *Spinner {
 	s := &Spinner{
 		Delay:      d,
-		chars:      cs,
+		chars:      append([]string(nil), cs...),
 		color:      color.New(color.FgWhite).SprintFunc(),
 		mu:         &sync.RWMutex{},
 		Writer:     color.Output,
@@ -450,10 +451,10 @@ func (s *Spinner) UpdateSpeed(d time.Duration) {
 	s.mu.Unlock()
 }
 
-// UpdateCharSet will change the current character set to the given one.
+// UpdateCharSet will change the current character set to a copy of the given one.
 func (s *Spinner) UpdateCharSet(cs []string) {
 	s.mu.Lock()
-	s.chars = cs
+	s.chars = append([]string(nil), cs...)
 	s.mu.Unlock()
 }
 
