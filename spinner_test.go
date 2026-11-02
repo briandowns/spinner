@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Brian J. Downs
+// Copyright (c) 2026 Brian J. Downs
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package spinner
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"reflect"
 	"strings"
@@ -65,7 +65,7 @@ func TestNew(t *testing.T) {
 // TestStart will verify a spinner can be started
 func TestStart(t *testing.T) {
 	s := New(CharSets[1], 100*time.Millisecond)
-	s.Color("red")
+	_ = s.Color("red")
 	s.Start()
 	time.Sleep(baseWait * time.Second)
 	s.Stop()
@@ -100,13 +100,15 @@ func TestActiveRace(t *testing.T) {
 		if err != nil {
 			t.Skip("not running in a terminal")
 		}
-		defer f.Close()
+		defer func() {
+			_ = f.Close()
+		}()
 		termFile = f
 	}
 
 	s := New(CharSets[1], 10*time.Millisecond)
 	s.WriterFile = termFile
-	s.Writer = ioutil.Discard
+	s.Writer = io.Discard
 
 	var wg sync.WaitGroup
 	stop := make(chan struct{})
@@ -125,7 +127,7 @@ func TestActiveRace(t *testing.T) {
 		}
 	}()
 
-	for i := 0; i < 20; i++ {
+	for range 20 {
 		s.Start()
 		time.Sleep(5 * time.Millisecond)
 		s.Stop()
@@ -139,7 +141,7 @@ func TestActiveRace(t *testing.T) {
 // TestStop will verify a spinner can be stopped
 func TestStop(t *testing.T) {
 	p, out := withOutput(CharSets[14], 100*time.Millisecond)
-	p.Color("yellow")
+	_ = p.Color("yellow")
 	p.Start()
 	time.Sleep(500 * time.Millisecond)
 	p.Stop()
@@ -182,9 +184,11 @@ func TestRestart(t *testing.T) {
 // and concurrently does not deadlock or block subsequent Start/Restart goroutines.
 func TestRapidStopRestart(t *testing.T) {
 	s := New(CharSets[1], 2*time.Millisecond)
-	s.Writer = ioutil.Discard
+	s.Writer = io.Discard
 	if f, err := os.OpenFile("/dev/ptmx", os.O_RDWR, 0); err == nil {
-		defer f.Close()
+		defer func() {
+			_ = f.Close()
+		}()
 		s.WriterFile = f
 	}
 
@@ -195,7 +199,7 @@ func TestRapidStopRestart(t *testing.T) {
 
 	// Rapid sequential Stop and Restart (Issue #101 regression)
 	s.Start()
-	for i := 0; i < 50; i++ {
+	for range 50 {
 		s.Stop()
 		s.Restart()
 		time.Sleep(5 * time.Millisecond)
@@ -209,11 +213,11 @@ func TestRapidStopRestart(t *testing.T) {
 
 	// Rapid concurrent Stop and Restart under race detector
 	var wg sync.WaitGroup
-	for i := 0; i < 5; i++ {
+	for range 5 {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			for j := 0; j < 20; j++ {
+			for range 20 {
 				s.Restart()
 				time.Sleep(time.Millisecond)
 				s.Stop()
@@ -255,14 +259,14 @@ func TestHookFunctions(t *testing.T) {
 	var out syncBuffer
 	s.Writer = &out
 	s.PreUpdate = func(s *Spinner) {
-		fmt.Fprintf(s.Writer, "pre-update")
+		_, _ = fmt.Fprintf(s.Writer, "pre-update")
 	}
 	s.PostUpdate = func(s *Spinner) {
-		fmt.Fprintf(s.Writer, "post-update")
+		_, _ = fmt.Fprintf(s.Writer, "post-update")
 	}
 
 	s.Start()
-	s.Color("cyan")
+	_ = s.Color("cyan")
 	time.Sleep(200 * time.Millisecond)
 	s.Stop()
 	time.Sleep(50 * time.Millisecond)
@@ -282,7 +286,7 @@ func TestHookFunctions(t *testing.T) {
 // TestReverse will verify that the given spinner can stop and start again reversed
 func TestReverse(t *testing.T) {
 	a := New(CharSets[10], 1*time.Second)
-	a.Color("red")
+	_ = a.Color("red")
 	a.Start()
 	time.Sleep(baseWait * time.Second)
 	a.Reverse()
@@ -342,7 +346,7 @@ func TestBackspace(t *testing.T) {
 	time.Sleep(75 * time.Millisecond)
 	fmt.Println()
 	s := New(CharSets[0], 100*time.Millisecond)
-	s.Color("blue")
+	_ = s.Color("blue")
 	s.Start()
 	fmt.Print("This is on the same line as the spinner: ")
 	time.Sleep(baseWait * time.Second)
@@ -367,8 +371,7 @@ func TestColorError(t *testing.T) {
 }
 
 func TestWithWriter(t *testing.T) {
-	s := New(CharSets[9], time.Millisecond*400, WithWriter(ioutil.Discard))
-	_ = s
+	_ = New(CharSets[9], time.Millisecond*400, WithWriter(io.Discard))
 }
 
 func TestComputeNumberOfLinesNeededToPrintStringInternal(t *testing.T) {
