@@ -138,6 +138,33 @@ func TestActiveRace(t *testing.T) {
 	wg.Wait()
 }
 
+// TestCharSetRace will verify the character set can be changed while the spinner runs
+func TestCharSetRace(t *testing.T) {
+	termFile := os.Stdout
+	if !term.IsTerminal(int(termFile.Fd())) {
+		f, err := os.OpenFile("/dev/ptmx", os.O_RDWR, 0)
+		if err != nil {
+			t.Skip("not running in a terminal")
+		}
+		defer func() {
+			_ = f.Close()
+		}()
+		termFile = f
+	}
+
+	s := New(CharSets[1], time.Millisecond)
+	s.WriterFile = termFile
+	s.Writer = io.Discard
+
+	s.Start()
+	for i := range 100 {
+		s.UpdateCharSet(CharSets[i%5])
+		s.Reverse()
+		time.Sleep(time.Millisecond)
+	}
+	s.Stop()
+}
+
 // TestStop will verify a spinner can be stopped
 func TestStop(t *testing.T) {
 	p, out := withOutput(CharSets[14], 100*time.Millisecond)
