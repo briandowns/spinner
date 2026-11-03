@@ -343,7 +343,8 @@ func (s *Spinner) Start() {
 
 	go func() {
 		for {
-			for i := 0; i < len(s.chars); i++ {
+		frames:
+			for i := 0; ; i++ {
 				select {
 				case <-s.stopChan:
 					return
@@ -352,6 +353,12 @@ func (s *Spinner) Start() {
 					if !s.active {
 						s.mu.Unlock()
 						return
+					}
+					// s.chars can be replaced or reversed while the spinner runs, so
+					// its length is only read while holding the lock.
+					if i >= len(s.chars) {
+						s.mu.Unlock()
+						break frames
 					}
 					if !isWindowsTerminalOnWindows {
 						s.erase()
