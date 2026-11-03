@@ -249,6 +249,36 @@ func TestDisable(t *testing.T) {
 	}
 }
 
+// TestEnabledRace will verify Enabled can be called while the spinner is enabled and disabled
+func TestEnabledRace(t *testing.T) {
+	s, _ := withOutput(CharSets[1], 10*time.Millisecond)
+
+	var wg sync.WaitGroup
+	stop := make(chan struct{})
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for {
+			select {
+			case <-stop:
+				return
+			default:
+				_ = s.Enabled()
+			}
+		}
+	}()
+
+	for range 20 {
+		s.Disable()
+		s.Enable()
+	}
+
+	close(stop)
+	wg.Wait()
+	s.Stop()
+}
+
 // TestHookFunctions will verify that hook functions works as expected
 func TestHookFunctions(t *testing.T) {
 	if fd := os.Stdout.Fd(); !term.IsTerminal(int(fd)) {
