@@ -300,18 +300,24 @@ func (s *Spinner) Active() bool {
 
 // Enabled returns whether or not the spinner is enabled.
 func (s *Spinner) Enabled() bool {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	return s.enabled
 }
 
 // Enable enables and restarts the spinner
 func (s *Spinner) Enable() {
+	s.mu.Lock()
 	s.enabled = true
+	s.mu.Unlock()
 	s.Restart()
 }
 
 // Disable stops and disables the spinner
 func (s *Spinner) Disable() {
+	s.mu.Lock()
 	s.enabled = false
+	s.mu.Unlock()
 	s.Stop()
 }
 
