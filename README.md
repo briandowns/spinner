@@ -16,7 +16,7 @@ go get github.com/briandowns/spinner
 
 ## Available Character Sets
 
-90 Character Sets. Some examples below:
+92 Character Sets. Some examples below:
 
 (Numbered by their slice index)
 
@@ -66,6 +66,17 @@ go get github.com/briandowns/spinner
 | 41    | ```⬒ ⬔ ⬓ ⬕```                                                                                                                                                                                                                                                                             | ![Sample Gif](gifs/41.gif) |
 | 42    | ```⬖ ⬘ ⬗ ⬙```                                                                                                                                                                                                                                                                             | ![Sample Gif](gifs/42.gif) |
 | 43    | ```[>>>          >] []>>>>        [] []  >>>>      [] []    >>>>    [] []      >>>>  [] []        >>>>[] [>>          >>]```                                                                                                                                                              | ![Sample Gif](gifs/43.gif) |
+
+The ASCII moving bar at index `91` moves an `=` across a fixed-width bracketed
+track, then starts again. Select it with:
+
+```go
+s := spinner.New(spinner.CharSets[91], 100*time.Millisecond)
+```
+
+Frames include `[               ]`, `[=              ]`, `[ =             ]`,
+and `[              =]`. This is an indeterminate activity indicator, not a
+percentage-complete progress bar.
 
 ## Features
 
